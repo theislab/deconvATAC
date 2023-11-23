@@ -3,7 +3,7 @@ import cell2location as c2l
 
 
 def cell2location(
-     adata_spatial,
+    adata_spatial,
     adata_ref,
     N_cells_per_location,
     detection_alpha,
@@ -68,7 +68,6 @@ def cell2location(
 
     - Saves 'q05_cell_abundance_w_sf' and 'means_cell_abundance_w_sf' as csv-files to results_path.
     - If return_adatas=True, returns tupel (adata_spatial, adata_ref) with saved deconvolution results. 
-    
     '''
 
     # 1. Fit sc model
