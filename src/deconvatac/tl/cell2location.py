@@ -1,103 +1,116 @@
 import os
 import cell2location as c2l
 
+
 def cell2location(
-    adata_st,
+     adata_spatial,
     adata_ref,
     N_cells_per_location,
     detection_alpha,
-    return_adatas=False,
-    use_gpu=True,
-    plots=True,
-    result_path="./cell2location_results",
-    layer_st=None,
+    labels_key=None,
+    layer_spatial=None,
     layer_ref=None,
-    batch_key_st=None,
-    batch_key_ref=None,
-    labels_key_st=None,
-    labels_key_ref=None,
-    categorical_covariate_keys_st=None,
-    categorical_covariate_keys_ref=None,
-    continuous_covariate_keys_st=None,
-    continuous_covariate_keys_ref=None,
-    max_epochs_st=30000,
+    use_gpu=True,
+    max_epochs_spatial=30000,
     max_epochs_ref=None,
-    batch_size_st=None,
-    batch_size_ref=2500,
-    train_size_st=1,
-    train_size_ref=1,
-    lr_st=0.002,
-    lr_ref=0.002,
+    return_adatas=False,
+    plots=True,
+    results_path="./cell2location_results",
+    setup_ref_kwargs={},
+    train_ref_kwargs={},
+    setup_spatial_kwargs={}, 
+    train_spatial_kwargs={}
 ):
-    ## TODO: add parameter descriptions
-    # expects adata_st and adata_ref to be already filtered by highly variable features
+    '''
+    Run Cell2Location 
+
+    Parameters 
+    -----------
+
+    adata_spatial : AnnData
+        AnnData of the spatial data, filtered by highly variable features. Feature space needs to be the same as the one of adata_ref. 
+    adata_ref : AnnData 
+        AnnData of the reference data, filtered by highly variable features. Feature space needs to be the same as the one of adata_spatial.
+    N_cells_per_location : float
+        Expected cell number per location.
+    detection_alpha : float
+        Regularisation of per-location normalisation.
+    labels_key : str
+        Cell type key in adata_ref.obs for label information
+    layer_spatial : str
+        Layer of adata_spatial to use for deconvolution. If None, uses adata_spatial.X.
+    layer_ref : str
+        Layer of adata_ref to use for deconvolution. If None, uses adata_ref.X.
+    use_gpu : bool
+        Whether to use the GPU.
+    max_epochs_spatial: int
+        Number of epochs for the spatial mapping model. If None, defaults to np.min([round((20000 / n_cells) * 400), 400]).
+    max_epochs_ref: int 
+        Number of epochs for the reference model. If None, defaults to np.min([round((20000 / n_cells) * 400), 400]).
+    return_adatas: bool 
+        Whether to return AnnDatas with deconvolution results. Returns tupel: (adata_spatial, adata_ref).
+    plots: bool 
+        Whether to plot QC and ELBO plots.
+    results_path: str
+        Path to save estimated cell type abundances to. 
+    setup_ref_kwargs: dict
+        Parameters for cell2location.models.RegressionModel.setup_anndata()
+    train_ref_kwargs: dict
+        Parameters for cell2location.models.RegressionModel.train()
+    setup_spatial_kwargs: dict
+        Parameters for cell2location.models.Cell2location.setup_anndata()
+    train_spatial_kwargs: dict
+        Parameters for cell2location.models.Cell2location.train()
+    
+        
+    Returns
+    --------
+
+    - Saves 'q05_cell_abundance_w_sf' and 'means_cell_abundance_w_sf' as csv-files to results_path.
+    - If return_adatas=True, returns tupel (adata_spatial, adata_ref) with saved deconvolution results. 
+    
+    '''
 
     # 1. Fit sc model
-    c2l.models.RegressionModel.setup_anndata(
-        adata=adata_ref,
-        layer=layer_ref,
-        batch_key=batch_key_ref,
-        labels_key=labels_key_ref,
-        categorical_covariate_keys=categorical_covariate_keys_ref,
-        continuous_covariate_keys=continuous_covariate_keys_ref,
-    )
-    model_ref = c2l.models.RegressionModel(adata_ref)  # also add parameters of this function?
+    c2l.models.RegressionModel.setup_anndata(adata=adata_ref, layer=layer_ref, labels_key=labels_key, **setup_ref_kwargs)
+    model_ref = c2l.models.RegressionModel(adata_ref) 
     if plots:
         model_ref.view_anndata_setup()
-    model_ref.train(
-        max_epochs=max_epochs_ref, use_gpu=use_gpu, batch_size=batch_size_ref, train_size=train_size_ref, lr=lr_ref
-    )
+
+    model_ref.train(max_epochs=max_epochs_ref, use_gpu=use_gpu,**train_ref_kwargs)
     if plots:
         model_ref.plot_history(20)
-    adata_ref = model_ref.export_posterior(
-        adata_ref,
-        use_quantiles=True,
-        add_to_obsm=["q05", "q50", "q95", "q0001"],
-        sample_kwargs={"batch_size": batch_size_ref, "use_gpu": use_gpu},
-    )
 
+    adata_ref = model_ref.export_posterior(adata_ref, use_quantiles=True)
     if plots:
         model_ref.plot_QC()
+
     if "means_per_cluster_mu_fg" in adata_ref.varm.keys():
-        inf_aver = adata_ref.varm["means_per_cluster_mu_fg"][
-            [f"means_per_cluster_mu_fg_{i}" for i in adata_ref.uns["mod"]["factor_names"]]
-        ].copy()
+        inf_aver = adata_ref.varm["means_per_cluster_mu_fg"][[f"means_per_cluster_mu_fg_{i}" for i in adata_ref.uns["mod"]["factor_names"]]].copy()
     else:
         inf_aver = adata_ref.var[[f"means_per_cluster_mu_fg_{i}" for i in adata_ref.uns["mod"]["factor_names"]]].copy()
-    inf_aver.columns = adata_ref.uns["mod"]["factor_names"]  # also save this table?
+    inf_aver.columns = adata_ref.uns["mod"]["factor_names"] 
 
     # 2. Fit spatial model
-    c2l.models.Cell2location.setup_anndata(
-        adata=adata_st,
-        layer=layer_st,
-        batch_key=batch_key_st,
-        labels_key=labels_key_st,
-        categorical_covariate_keys=categorical_covariate_keys_st,
-        continuous_covariate_keys=continuous_covariate_keys_st,
-    )
-
-    model_st = c2l.models.Cell2location(
-        adata_st, cell_state_df=inf_aver, N_cells_per_location=N_cells_per_location, detection_alpha=detection_alpha
-    )
+    c2l.models.Cell2location.setup_anndata(adata=adata_spatial, layer=layer_spatial, **setup_spatial_kwargs)
+    model_st = c2l.models.Cell2location(adata_spatial, cell_state_df=inf_aver, N_cells_per_location=N_cells_per_location, detection_alpha=detection_alpha)
     if plots:
         model_st.view_anndata_setup()
-    model_st.train(
-        max_epochs=max_epochs_st, use_gpu=use_gpu, batch_size=batch_size_st, train_size=train_size_st, lr=lr_st
-    )
+
+    model_st.train(max_epochs=max_epochs_spatial, use_gpu=use_gpu, **train_spatial_kwargs)
     if plots:
         model_st.plot_history(1000)
-    adata_st = model_st.export_posterior(
-        adata_st, sample_kwargs={"num_samples": 1000, "batch_size": model_st.adata.n_obs, "use_gpu": use_gpu}
-    )
+
+    adata_spatial = model_st.export_posterior(adata_spatial)
     if plots:
         model_st.plot_QC()
 
     # 3. Save results
-    if not os.path.exists(result_path):
-        os.mkdir(result_path)
-    adata_st.obsm["q05_cell_abundance_w_sf"].to_csv(result_path + "/q05_cell_abundance_w_sf.csv")
-    adata_st.obsm["means_cell_abundance_w_sf"].to_csv(result_path + "/means_cell_abundance_w_sf.csv")
+    if not os.path.exists(results_path):
+        os.mkdir(results_path)
+    adata_spatial.obsm["q05_cell_abundance_w_sf"].to_csv(results_path + "/q05_cell_abundance_w_sf.csv")
+    adata_spatial.obsm["means_cell_abundance_w_sf"].to_csv(results_path + "/means_cell_abundance_w_sf.csv")
 
     if return_adatas:
-        return adata_st, adata_ref
+        return adata_spatial, adata_ref
 
