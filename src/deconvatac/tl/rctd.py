@@ -5,7 +5,7 @@ import anndata2ri
 def rctd(
     adata_spatial, 
     adata_ref, 
-    label_key,
+    labels_key,
     doublet_mode = 'doublet',
     r_lib_path=None, 
     results_path="./rctd_results", 
@@ -49,11 +49,11 @@ def rctd(
     # load single-cell data into R & create 'Reference' object
     scexp_sc = anndata2ri._py2r.py2rpy_anndata(adata_ref)
     robjects.r.assign("scexp_sc", scexp_sc)
-    robjects.r.assign("label_key", label_key)
+    robjects.r.assign("labels_key", labels_key)
     robjects.r(
         """
                 counts_sc = assay(scexp_sc,"X")
-                meta_sc = scexp_sc@colData[[label_key]]
+                meta_sc = scexp_sc@colData[[labels_key]]
                 reference = Reference(counts_sc, meta_sc)
                 """
     )
