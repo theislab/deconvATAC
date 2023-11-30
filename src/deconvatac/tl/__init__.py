@@ -5,3 +5,4 @@ from .cell2location import cell2location
 from .rctd import rctd
 from .tangram import tangram
 from .destvi import destvi
+from .spatialdwls import spatialdwls
