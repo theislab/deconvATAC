@@ -70,9 +70,12 @@ def cell2location(
     - If return_adatas=True, returns tupel (adata_spatial, adata_ref) with saved deconvolution results. 
     '''
 
+    adata_ref_copy = adata_ref.copy()
+    adata_spatial_copy = adata_spatial.copy()
+
     # 1. Fit sc model
-    c2l.models.RegressionModel.setup_anndata(adata=adata_ref, layer=layer_ref, labels_key=labels_key, **setup_ref_kwargs)
-    model_ref = c2l.models.RegressionModel(adata_ref) 
+    c2l.models.RegressionModel.setup_anndata(adata=adata_ref_copy, layer=layer_ref, labels_key=labels_key, **setup_ref_kwargs)
+    model_ref = c2l.models.RegressionModel(adata_ref_copy) 
     if plots:
         model_ref.view_anndata_setup()
 
@@ -80,19 +83,19 @@ def cell2location(
     if plots:
         model_ref.plot_history(20)
 
-    adata_ref = model_ref.export_posterior(adata_ref, use_quantiles=True)
+    adata_ref_copy = model_ref.export_posterior(adata_ref_copy, use_quantiles=True)
     if plots:
         model_ref.plot_QC()
 
-    if "means_per_cluster_mu_fg" in adata_ref.varm.keys():
-        inf_aver = adata_ref.varm["means_per_cluster_mu_fg"][[f"means_per_cluster_mu_fg_{i}" for i in adata_ref.uns["mod"]["factor_names"]]].copy()
+    if "means_per_cluster_mu_fg" in adata_ref_copy.varm.keys():
+        inf_aver = adata_ref_copy.varm["means_per_cluster_mu_fg"][[f"means_per_cluster_mu_fg_{i}" for i in adata_ref_copy.uns["mod"]["factor_names"]]].copy()
     else:
-        inf_aver = adata_ref.var[[f"means_per_cluster_mu_fg_{i}" for i in adata_ref.uns["mod"]["factor_names"]]].copy()
-    inf_aver.columns = adata_ref.uns["mod"]["factor_names"] 
+        inf_aver = adata_ref_copy.var[[f"means_per_cluster_mu_fg_{i}" for i in adata_ref_copy.uns["mod"]["factor_names"]]].copy()
+    inf_aver.columns = adata_ref_copy.uns["mod"]["factor_names"] 
 
     # 2. Fit spatial model
-    c2l.models.Cell2location.setup_anndata(adata=adata_spatial, layer=layer_spatial, **setup_spatial_kwargs)
-    model_st = c2l.models.Cell2location(adata_spatial, cell_state_df=inf_aver, N_cells_per_location=N_cells_per_location, detection_alpha=detection_alpha)
+    c2l.models.Cell2location.setup_anndata(adata=adata_spatial_copy, layer=layer_spatial, **setup_spatial_kwargs)
+    model_st = c2l.models.Cell2location(adata_spatial_copy, cell_state_df=inf_aver, N_cells_per_location=N_cells_per_location, detection_alpha=detection_alpha)
     if plots:
         model_st.view_anndata_setup()
 
@@ -100,16 +103,16 @@ def cell2location(
     if plots:
         model_st.plot_history(1000)
 
-    adata_spatial = model_st.export_posterior(adata_spatial)
+    adata_spatial_copy = model_st.export_posterior(adata_spatial_copy)
     if plots:
         model_st.plot_QC()
 
     # 3. Save results
     if not os.path.exists(results_path):
         os.mkdir(results_path)
-    adata_spatial.obsm["q05_cell_abundance_w_sf"].to_csv(results_path + "/q05_cell_abundance_w_sf.csv")
-    adata_spatial.obsm["means_cell_abundance_w_sf"].to_csv(results_path + "/means_cell_abundance_w_sf.csv")
+    adata_spatial_copy.obsm["q05_cell_abundance_w_sf"].to_csv(results_path + "/q05_cell_abundance_w_sf.csv")
+    adata_spatial_copy.obsm["means_cell_abundance_w_sf"].to_csv(results_path + "/means_cell_abundance_w_sf.csv")
 
     if return_adatas:
-        return adata_spatial, adata_ref
+        return adata_spatial_copy, adata_ref_copy
 

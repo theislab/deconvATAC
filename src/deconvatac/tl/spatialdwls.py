@@ -53,6 +53,10 @@ def spatialdwls(
 
     - Saves estimated proportions as csv-file to results_path.
     '''
+
+    adata_spatial_copy = adata_spatial.copy()
+    adata_ref_copy = adata_ref.copy()
+
     if r_lib_path is not None:
         robjects.r.assign("lib_path", r_lib_path)
         robjects.r(".libPaths(lib_path)")
@@ -61,7 +65,7 @@ def spatialdwls(
     robjects.r("library(Giotto)")
 
     # Load reference into R and create signature matrix: 
-    scexp_sc = anndata2ri._py2r.py2rpy_anndata(adata_ref)
+    scexp_sc = anndata2ri._py2r.py2rpy_anndata(adata_ref_copy)
     robjects.r.assign("scexp_sc", scexp_sc)
     robjects.r.assign("labels_key", labels_key)
     robjects.r.assign("layer_ref", layer_ref) # layer of normalized counts 
@@ -84,20 +88,20 @@ def spatialdwls(
       
     # Preprocess spatial data & compute leiden clustering 
     if highly_variable_key_spatial is not None and highly_variable_key_spatial != "highly_variable":
-            adata_spatial.var["highly_variable"] = adata_spatial.var[highly_variable_key_spatial]
+            adata_spatial_copy.var["highly_variable"] = adata_spatial_copy.var[highly_variable_key_spatial]
     if layer_spatial != "X":
-         adata_spatial.X = adata_spatial.layers[layer_spatial]
+         adata_spatial_copy.X = adata_spatial_copy.layers[layer_spatial]
     if dimred == "PCA":
-        sc.pp.pca(adata_spatial)
-        sc.pp.neighbors(adata_spatial)
-        sc.tl.leiden(adata_spatial)
+        sc.pp.pca(adata_spatial_copy)
+        sc.pp.neighbors(adata_spatial_copy)
+        sc.tl.leiden(adata_spatial_copy)
     elif dimred == "LSI": 
-        lsi(adata_spatial)
-        sc.pp.neighbors(adata_spatial, use_rep="X_lsi")
-        sc.tl.leiden(adata_spatial)
+        lsi(adata_spatial_copy)
+        sc.pp.neighbors(adata_spatial_copy, use_rep="X_lsi")
+        sc.tl.leiden(adata_spatial_copy)
 
     # Load spatial data into R
-    scexp_st = anndata2ri._py2r.py2rpy_anndata(adata_spatial)
+    scexp_st = anndata2ri._py2r.py2rpy_anndata(adata_spatial_copy)
     robjects.r.assign("scexp_st", scexp_st)
     robjects.r.assign("layer_spatial", layer_spatial) 
     robjects.r("""

@@ -52,26 +52,29 @@ def tangram(
     - If return_adatas=True, returns tupel (adata_spatial, adata_ref) with saved deconvolution results. 
     '''
 
+    adata_ref_copy = adata_ref.copy()
+    adata_spatial_copy = adata_spatial.copy()
+
     # 1. Preprocess anndatas
     if run_rank_genes:
-        sc.tl.rank_genes_groups(adata_ref, groupby=labels_key, layer=layer_rank_genes, method="wilcoxon")
-        markers_df = pd.DataFrame(adata_ref.uns["rank_genes_groups"]["names"]).iloc[0:1000, :]
+        sc.tl.rank_genes_groups(adata_ref_copy, groupby=labels_key, layer=layer_rank_genes, method="wilcoxon")
+        markers_df = pd.DataFrame(adata_ref_copy.uns["rank_genes_groups"]["names"]).iloc[0:1000, :]
         markers = list(np.unique(markers_df.melt().value.values))
-        tg.pp_adatas(adata_sc=adata_ref, adata_sp=adata_spatial, genes=markers)
+        tg.pp_adatas(adata_sc=adata_ref_copy, adata_sp=adata_spatial_copy, genes=markers)
     else:
-        tg.pp_adatas(adata_sc=adata_ref, adata_sp=adata_spatial, genes=list(adata_ref.var.index))
+        tg.pp_adatas(adata_sc=adata_ref_copy, adata_sp=adata_spatial_copy, genes=list(adata_ref_copy.var.index))
 
     # 2. Run tangram
     adata_results = tg.mapping_utils.map_cells_to_space(
-        adata_sc=adata_ref, adata_sp=adata_spatial, num_epochs=num_epochs, device=device, **kwargs
+        adata_sc=adata_ref_copy, adata_sp=adata_spatial_copy, num_epochs=num_epochs, device=device, **kwargs
     )
 
     # 3. Extract and save results
-    tg.project_cell_annotations(adata_results, adata_spatial, annotation=labels_key)
+    tg.project_cell_annotations(adata_results, adata_spatial_copy, annotation=labels_key)
 
     if not os.path.exists(result_path):
         os.mkdir(result_path)
-    adata_spatial.obsm["tangram_ct_pred"].to_csv(result_path + "/tangram_ct_pred.csv")
+    adata_spatial_copy.obsm["tangram_ct_pred"].to_csv(result_path + "/tangram_ct_pred.csv")
 
     if return_adatas:
-        return adata_spatial, adata_ref
+        return adata_spatial_copy, adata_ref_copy
