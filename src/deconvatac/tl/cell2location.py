@@ -1,5 +1,5 @@
 import os
-import cell2location as c2l
+
 
 def cell2location(
     adata_st,
@@ -31,6 +31,7 @@ def cell2location(
 ):
     ## TODO: add parameter descriptions
     # expects adata_st and adata_ref to be already filtered by highly variable features
+    import cell2location as c2l
 
     # 1. Fit sc model
     c2l.models.RegressionModel.setup_anndata(
@@ -100,4 +101,3 @@ def cell2location(
 
     if return_adatas:
         return adata_st, adata_ref
-
