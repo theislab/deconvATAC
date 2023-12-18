@@ -2,10 +2,43 @@ from rpy2 import robjects
 import anndata2ri
 
 
-def rctd(adata_st, adata_sc, label_key, r_lib_path=None, result_path="./rctd_results"):
-    ### TODO: add parameters of the functions create.RCTD and run.RCTD
-    ### for now expects raw counts to be saved in adata.X
+def rctd(
+    adata_spatial, 
+    adata_ref, 
+    labels_key,
+    doublet_mode = 'doublet',
+    r_lib_path=None, 
+    results_path="./rctd_results", 
+    create_rctd_kwargs = {}
+): 
+    '''
+    Run RCTD
 
+    Parameters 
+    -----------
+
+    adata_spatial : AnnData
+        AnnData of the spatial data.
+    adata_ref : AnnData 
+        AnnData of the reference data.
+    labels_key : str
+        Cell type key in adata_ref.obs for label information
+    doublet_mode: str ["doublet", "multi", "full"]
+        On which mode to run RCTD:  'doublet' (at most 1-2 cell types per pixel),
+                                    'full' (no restrictions on number of cell types),
+                                    'multi' (finitely many cell types per pixel, e.g. 3 or 4)
+    r_lib_path : str
+        Path to R library.   
+    results_path : str
+        Path to save estimated cell type abundances to. 
+    create_rctd_kwargs : dict 
+        Parameters for create.RCTD().
+        
+    Returns
+    --------
+
+    - Saves estimated proportions as csv-file to results_path.
+    '''
     if r_lib_path is not None:
         robjects.r.assign("lib_path", r_lib_path)
         robjects.r(".libPaths(lib_path)")
@@ -14,20 +47,19 @@ def rctd(adata_st, adata_sc, label_key, r_lib_path=None, result_path="./rctd_res
     robjects.r("library(spacexr)")
 
     # load single-cell data into R & create 'Reference' object
-    scexp_sc = anndata2ri._py2r.py2rpy_anndata(adata_sc)
+    scexp_sc = anndata2ri._py2r.py2rpy_anndata(adata_ref)
     robjects.r.assign("scexp_sc", scexp_sc)
-    robjects.r.assign("label_key", label_key)
+    robjects.r.assign("labels_key", labels_key)
     robjects.r(
         """
                 counts_sc = assay(scexp_sc,"X")
-                meta_sc = scexp_sc@colData[[label_key]]
+                meta_sc = scexp_sc@colData[[labels_key]]
                 reference = Reference(counts_sc, meta_sc)
-                print("Done with reference")
                 """
     )
 
     # load spatial data into R & create 'SpatialRNA' object
-    scexp_st = anndata2ri._py2r.py2rpy_anndata(adata_st)
+    scexp_st = anndata2ri._py2r.py2rpy_anndata(adata_spatial)
     robjects.r.assign("scexp_st", scexp_st)
     robjects.r(
         """
@@ -36,22 +68,32 @@ def rctd(adata_st, adata_sc, label_key, r_lib_path=None, result_path="./rctd_res
                 colnames(coords) = c("x", "y")
                 rownames(coords) = colnames(counts_st)
                 puck = SpatialRNA(coords, counts_st)
-                print("Done with spatial")
                 """
     )
+
+    # load create_rctd_kwargs into R 
+    robjects.r("""
+           create_rctd_keys = list()
+           create_rctd_values = list()
+           """)
+    for key, value in create_rctd_kwargs.items(): 
+        robjects.r.assign("temp_key", key)
+        robjects.r.assign("temp_value", value)
+        robjects.r("""
+            create_rctd_keys = append(create_rctd_keys, temp_key)
+            create_rctd_values = append(create_rctd_values, temp_value)
+            """)
+    robjects.r("names(create_rctd_values) = create_rctd_keys")
 
     # run deconvolution and save results
-    robjects.r.assign("result_path", result_path)
+    robjects.r.assign("results_path", results_path)
+    robjects.r.assign("doublet_mode", doublet_mode)
     robjects.r(
         """
-                print("Running RCTD")
-                myRCTD = create.RCTD(puck, reference, CELL_MIN_INSTANCE = 0, max_cores = 1)
-                myRCTD = run.RCTD(myRCTD, doublet_mode = 'doublet')
+                myRCTD = do.call(create.RCTD, c(list(spatialRNA=puck, reference=reference),create_rctd_values))
+                myRCTD = run.RCTD(myRCTD, doublet_mode=doublet_mode)
                 results = myRCTD@results
-                print("Saving results")
-                dir.create(result_path)
-                write.csv(results$results_df, result_path)
+                dir.create(results_path)
+                write.csv(results$results_df, paste0(results_path, "/estimated_proportions.csv"))
                 """
     )
-
-    # return adata_st with results saved in adata.obs ?
