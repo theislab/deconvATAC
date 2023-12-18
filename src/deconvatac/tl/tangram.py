@@ -2,10 +2,6 @@ import os
 import numpy as np
 import pandas as pd
 import scanpy as sc
-import tangram as tg
-
-
-
 
 
 def tangram(
@@ -25,6 +21,7 @@ def tangram(
                     If false, will only run tg.pp_adatas with all peaks of the input anndatas. Thus, expects anndatas to be already filtered by HVFs
     layer_rank_genes: Only if run_rank_genes is true. Layer to use for sc.tl.rank_genes_groups
     """
+    import tangram as tg
 
     # 1. Preprocess anndatas
     if run_rank_genes:
