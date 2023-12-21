@@ -1,4 +1,5 @@
 import os
+import cell2location as c2l
 
 
 def cell2location(
