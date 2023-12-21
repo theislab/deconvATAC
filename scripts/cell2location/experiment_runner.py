@@ -1,7 +1,8 @@
-import logging
 from sacred import Experiment
-import numpy as np
 import seml
+import scanpy as sc
+from deconvatac.pp import highly_variable_peaks
+from deconvatac.tl import cell2location
 
 
 ex = Experiment()
@@ -21,18 +22,6 @@ def config():
         ex.observers.append(seml.create_mongodb_observer(db_collection, overwrite=overwrite))
 
 
-@ex.post_run_hook
-def collect_stats(_run):
-    seml.collect_exp_stats(_run)
-
-
-@ex.config
-def config():
-    overwrite = None
-    db_collection = None
-    if db_collection is not None:
-        ex.observers.append(seml.create_mongodb_observer(db_collection, overwrite=overwrite))
-
 
 class ExperimentWrapper:
     """
@@ -45,53 +34,55 @@ class ExperimentWrapper:
         if init_all:
             self.init_all()
 
-    # With the prefix option we can "filter" the configuration for the sub-dictionary under "data".
     @ex.capture(prefix="data")
-    def init_dataset(self, dataset, batch):
-        """
-        Perform dataset loading, preprocessing etc.
-        Since we set prefix="data", this method only gets passed the respective sub-dictionary, enabling a modular
-        experiment design.
-        """
-        if isinstance(batch, str):
-            batch = [batch]
+    def init_dataset(self, adata_spatial_path, adata_reference_path, run_HVF_selection, layer_spatial, layer_reference, labels_key, name):
 
-        self.dataset = dataset
-        self.batch = batch if batch is not None else "NONE"
-        if dataset == "neurips":
-            self.adata = patac.data.load_neurips(batch=batch, only_train=False)
-        elif dataset == "satpathy":
-            self.adata = patac.data.load_hematopoiesis()
-        elif dataset == "aerts":
-            self.adata = patac.data.load_aerts()
-        elif dataset == "trapnell":
-            self.adata = patac.data.load_trapnell()
+        self.name = name
+
+        self.adata_spatial = sc.read_h5ad(adata_spatial_path)
+        self.adata_reference = sc.read_h5ad(adata_reference_path)
+
+        if run_HVF_selection: # select HVFs and subset 
+            highly_variable_peaks(self.adata_reference, cluster_key=labels_key)
+            self.adata_spatial = self.adata_spatial[:, self.adata_reference.var['highly_variable']]
+            self.adata_reference = self.adata_reference[:, self.adata_reference.var['highly_variable']]
+
+        self.layer_spatial= layer_spatial
+        self.layer_reference = layer_reference
+        self.labels_key = labels_key
+        
+    @ex.capture(prefix="method")
+    def init_method(self, name):
+        self.method_name = name
+
+    
+    def init_all(self):
+        self.init_dataset()
+        self.init_method()
 
     @ex.capture(prefix="model")
-    def init_model(self, model_name):
-        self.model_name = model_name
-
-    def init_all(self):
-        """
-        Sequentially run the sub-initializers of the experiment.
-        """
-        self.init_dataset()
-        self.init_model()
-
-    @ex.capture(prefix="training")
-    def run(self, model_params, save_path):
-        # TODO: add model training here
+    def run(self, detection_alpha, N_cells_per_location, output_path, max_epochs_spatial, max_epochs_ref, use_gpu):
+        
+        # output_path is still a mess, lol 
+        output_path = output_path + "/detalpha" + str(detection_alpha) + "N_cells" + str(N_cells_per_location) + self.name + self.method_name
+        cell2location(adata_spatial=self.adata_spatial,
+                        adata_ref=self.adata_reference,
+                        N_cells_per_location=N_cells_per_location,
+                        detection_alpha=detection_alpha,
+                        labels_key=self.labels_key,
+                        layer_spatial=self.layer_spatial,
+                        layer_ref=self.layer_reference,
+                        use_gpu=use_gpu,
+                        results_path=output_path, 
+                        max_epochs_spatial=max_epochs_spatial, 
+                        max_epochs_ref=max_epochs_ref)
 
         results = {
-            # /path/dataset/ this needs to be in config
-            # model name needs to be in config as well
-            "save_path": "/path/dataset/cell2location_results.csv",  # TODO: change
+            "save_path": output_path+"/cell2location_results.csv"
         }
         return results
 
 
-# We can call this command, e.g., from a Jupyter notebook with init_all=False to get an "empty" experiment wrapper,
-# where we can then for instance load a pretrained model to inspect the performance.
 @ex.command(unobserved=True)
 def get_experiment(init_all=False):
     print("get_experiment")
@@ -99,8 +90,6 @@ def get_experiment(init_all=False):
     return experiment
 
 
-# This function will be called by default. Note that we could in principle manually pass an experiment instance,
-# e.g., obtained by loading a model from the database or by calling this from a Jupyter notebook.
 @ex.automain
 def train(experiment=None):
     if experiment is None:

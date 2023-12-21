@@ -1,96 +1,99 @@
-# Experiment configuration file.
-#
-# There are two special blocks. The 'seml' block is required for every experiment.
-# It has to contain the following values:
-# executable:        Name of the Python script containing the experiment. The path should be relative to the `project_root_dir`.
-#                    For backward compatibility SEML also supports paths relative to the location of the config file.
-#                    In case there are files present both relative to the project root and the config file,
-#                    the former takes precedence.
-# It can optionally also contain the following values:
-# name:              Prefix for output file and Slurm job name. Default: Collection name
-# output_dir:        Directory to store log files in. Default: Current directory
-# conda_environment: Specifies which Anaconda virtual environment will be activated before the experiment is executed.
-#                    Default: The environment used when queuing.
-# project_root_dir:  (Relative or absolute) path to the root of the project. seml will then upload all the source
-#                    files imported by the experiment to the MongoDB. Moreover, the uploaded source files will be
-#                    downloaded before starting an experiment, so any changes to the source files in the project
-#                    between queueing and starting the experiment will have no effect.
-#
-# The special 'slurm' block contains the slurm parameters. This block and all values are optional. Possible values are:
-# experiments_per_job:     Number of parallel experiments to run in each Slurm job.
-#                          Note that only experiments from the same batch share a job. Default: 1
-# max_simultaneous_jobs:   Maximum number of simultaneously running Slurm jobs per job array. Default: No restriction
-# sbatch_options_template: Name of a custom template of `SBATCH` options. Define your own templates in `settings.py`
-#                          under `SBATCH_OPTIONS_TEMPLATES`, e.g. for long-running jobs, CPU-only jobs, etc.
-# sbatch_options:          dictionary that contains custom values that will be passed to `sbatch`, specifying e.g.
-#                          the memory and number of GPUs to be allocated (prepended dashes are not required). See
-#                          https://slurm.schedmd.com/sbatch.html for all possible options.
-#
-# Parameters under 'fixed' will be used for all the experiments.
-#
-# Under 'grid' you can define parameters that should be sampled from a regular grid. Options are:
-#   - choice:     List the different values you want to evaluate under 'choices' as in the example below.
-#   - range:      Specify the min, max, and step. Parameter values will be generated using np.arange(min, max, step).
-#   - uniform:    Specify the min, max, and num. Parameter values will be generated using
-#                 np.linspace(min, max, num, endpoint=True)
-#   - loguniform: Specify min, max, and num. Parameter values will be uniformly generated in log space (base 10).
-#
-# Under 'random' you can specify parameters for which you want to try several random values. Specify the number
-# of samples per parameter with the 'samples' value as in the examples below.
-# Specify the the seed under the 'random' dict or directly for the desired parameter(s).
-# Supported parameter types are:
-#   - choice:      Randomly samples <samples> entries (with replacement) from the list in parameter['options']
-#   - uniform:     Uniformly samples between 'min' and 'max' as specified in the parameter dict.
-#   - loguniform:  Uniformly samples in log space between 'min' and 'max' as specified in the parameter dict.
-#   - randint:     Randomly samples integers between 'min' (included) and 'max' (excluded).
-#
-# The configuration file can be nested (as the example below) so that we can run different parameter sets
-# e.g. for different datasets or models.
-# We take the cartesian product of all `grid` parameters on a path and sample all random parameters on the path.
-# The number of random parameters sampled will be max{n_samples} of all n_samples on the path. This is done because
-# we need the same number of samples from all random parameters in a configuration.
-#
-# More specific settings (i.e., further down the hierarchy) always overwrite more general ones.
+
 
 
 seml:
   executable: scripts/cell2location/experiment_runner.py
-  name: cell2location_experiment
+  name: test_cell2loc
   output_dir: scripts/cell2location/logs
-  project_root_dir: /vol/storage/martensl/deconvATAC/
-  description: Cell2location experiment
-  conda_environment: atac2space #TODO: add conda environment
+  project_root_dir: /vol/storage/ouologuems/deconvATAC/
+  description: Cell2location test run 
+  conda_environment: cell2loc_env
 
 slurm:
   experiments_per_job: 5
   sbatch_options:
-    mem: 16G          # memory
+    mem: 25G          # memory
     cpus-per-task: 1  # num cores
     time: 0-08:00     # max time, D-HH:MM
 
 ###### BEGIN PARAMETER CONFIGURATION ######
 
 fixed:
-  model.name: "cell2location"
+  method.name: "cell2location"
 
-Simulation_dataset1:
-  fixed: 
-    data.name: "Simulation_dataset1"
-    data.adata_path: #TODO
-    data.cell_type_key: #TODO
-    data.layer: #TODO
+#  data.name: "Russell_dataset"
+#  data.adata_spatial_path: /vol/storage/data/simulations/atac_russell_100.h5ad
+#  data.adata_reference_path: /vol/storage/data/simulations/atac_ref.h5ad
+#  data.run_HVF_selection: True
+#  data.layer_spatial: Null #raw counts are saved in .X
+#  data.layer_reference: Null #raw counts are saved in .X 
+#  data.labels_key: cell_type
+#  model.detection_alpha: 20
+#  model.output_path: /vol/storage/ouologuems/seml/results/cell2location
+#  model.max_epochs_spatial: 10
+#  model.max_epochs_ref: 10
 
-Russel_dataset:
-  fixed: 
-    data.name: "Russel_dataset"
-    data.adata_path: #TODO
-    data.cell_type_key: #TODO
-    data.layer: #TODO
+#grid: 
+#  model.N_cells_per_location:
+#    type: choice
+#    options:
+#      - 8
 
 
-# The different simulations
+#Simulation_dataset1:
+#  fixed: 
+#    data.name: "Simulation_dataset1"
+#    data.adata_path: #TODO
+#    data.cell_type_key: #TODO
+#    data.layer: #TODO
 
-#paramters for cell2location
+Russell_dataset:
+  fixed:
+    data.name: "Russell_dataset"
+    data.adata_spatial_path: "/vol/storage/data/simulations/atac_russell_100.h5ad"
+    data.adata_reference_path: "/vol/storage/data/simulations/atac_ref.h5ad"
+    data.run_HVF_selection: True
+    data.layer_spatial: Null
+    data.layer_reference: Null
+    data.labels_key: "cell_type"
+
+Cell2Location:
+  fixed:
+    model.detection_alpha: 20 
+    model.use_gpu: False
+    model.output_path: "/vol/storage/ouologuems/seml/results/cell2location"
+
+  grid:
+    model.N_cells_per_location:
+      type: choice
+      options: 
+          - 8
+
+
+#Russell_dataset:
+#  fixed:
+#    data.name: "Russell_dataset"
+#    data.adata_spatial_path: "/vol/storage/data/simulations/atac_russell_100.h5ad"
+#    data.adata_reference_path: "/vol/storage/data/simulations/atac_ref.h5ad"
+#    data.run_HVF_selection: True
+#    data.layer_spatial: Null #raw counts are saved in .X
+#    data.layer_reference: Null #raw counts are saved in .X 
+#    data.labels_key: "cell_type"
+
+
+
+#Cell2Location:
+#  fixed:
+#    model.detection_alpha: 20
+#    model.use_gpu: True
+#    model.output_path: "/vol/storage/ouologuems/seml/results/cell2location"
+    
+#  grid:
+#    model.N_cells_per_location:
+#    type: choice
+#    options:
+#      - 8
+
 
 
 
