@@ -2,100 +2,42 @@
 
 
 seml:
-  executable: scripts/cell2location/experiment_runner.py
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/cell2location/experiment_runner.py
   name: test_cell2loc
   output_dir: scripts/cell2location/logs
-  project_root_dir: /vol/storage/ouologuems/deconvATAC/
+  project_root_dir: /vol/storage/ouologuems/deconvATAC
   description: Cell2location test run 
   conda_environment: cell2loc_env
 
 slurm:
-  experiments_per_job: 5
+  experiments_per_job: 1
   sbatch_options:
-    mem: 25G          # memory
+    mem: 16G          # memory
     cpus-per-task: 1  # num cores
-    time: 0-08:00     # max time, D-HH:MM
+    time: 0-01:00     # max time, D-HH:MM
 
-###### BEGIN PARAMETER CONFIGURATION ######
+
+
 
 fixed:
   method.name: "cell2location"
 
-#  data.name: "Russell_dataset"
-#  data.adata_spatial_path: /vol/storage/data/simulations/atac_russell_100.h5ad
-#  data.adata_reference_path: /vol/storage/data/simulations/atac_ref.h5ad
-#  data.run_HVF_selection: True
-#  data.layer_spatial: Null #raw counts are saved in .X
-#  data.layer_reference: Null #raw counts are saved in .X 
-#  data.labels_key: cell_type
-#  model.detection_alpha: 20
-#  model.output_path: /vol/storage/ouologuems/seml/results/cell2location
-#  model.max_epochs_spatial: 10
-#  model.max_epochs_ref: 10
+  data.name: "Russell_dataset"
+  data.adata_spatial_path: /vol/storage/data/simulations/atac_russell_100.h5ad
+  data.adata_reference_path: /vol/storage/data/simulations/atac_ref.h5ad
+  data.run_HVF_selection: True
+  data.layer_spatial: Null #raw counts are saved in .X
+  data.layer_reference: Null #raw counts are saved in .X 
+  data.labels_key: cell_type
 
-#grid: 
-#  model.N_cells_per_location:
-#    type: choice
-#    options:
-#      - 8
+  model.use_gpu: False
+  model.detection_alpha: 20
+  model.output_path: /vol/storage/ouologuems/seml/results/cell2location
+  model.max_epochs_spatial: 50
+  model.max_epochs_ref: 50
 
-
-#Simulation_dataset1:
-#  fixed: 
-#    data.name: "Simulation_dataset1"
-#    data.adata_path: #TODO
-#    data.cell_type_key: #TODO
-#    data.layer: #TODO
-
-Russell_dataset:
-  fixed:
-    data.name: "Russell_dataset"
-    data.adata_spatial_path: "/vol/storage/data/simulations/atac_russell_100.h5ad"
-    data.adata_reference_path: "/vol/storage/data/simulations/atac_ref.h5ad"
-    data.run_HVF_selection: True
-    data.layer_spatial: Null
-    data.layer_reference: Null
-    data.labels_key: "cell_type"
-
-Cell2Location:
-  fixed:
-    model.detection_alpha: 20 
-    model.use_gpu: False
-    model.output_path: "/vol/storage/ouologuems/seml/results/cell2location"
-
-  grid:
-    model.N_cells_per_location:
-      type: choice
-      options: 
-          - 8
-
-
-#Russell_dataset:
-#  fixed:
-#    data.name: "Russell_dataset"
-#    data.adata_spatial_path: "/vol/storage/data/simulations/atac_russell_100.h5ad"
-#    data.adata_reference_path: "/vol/storage/data/simulations/atac_ref.h5ad"
-#    data.run_HVF_selection: True
-#    data.layer_spatial: Null #raw counts are saved in .X
-#    data.layer_reference: Null #raw counts are saved in .X 
-#    data.labels_key: "cell_type"
-
-
-
-#Cell2Location:
-#  fixed:
-#    model.detection_alpha: 20
-#    model.use_gpu: True
-#    model.output_path: "/vol/storage/ouologuems/seml/results/cell2location"
-    
-#  grid:
-#    model.N_cells_per_location:
-#    type: choice
-#    options:
-#      - 8
-
-
-
-
-
-
+grid: 
+  model.N_cells_per_location:
+    type: choice
+    options:
+      - 8

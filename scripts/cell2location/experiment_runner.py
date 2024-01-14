@@ -75,7 +75,7 @@ class ExperimentWrapper:
                         use_gpu=use_gpu,
                         results_path=output_path, 
                         max_epochs_spatial=max_epochs_spatial, 
-                        max_epochs_ref=max_epochs_ref)
+                        max_epochs_ref=max_epochs_ref, plots = False)
 
         results = {
             "save_path": output_path+"/cell2location_results.csv"

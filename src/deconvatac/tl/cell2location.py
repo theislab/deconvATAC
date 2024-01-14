@@ -85,7 +85,7 @@ def cell2location(
     if plots:
         model_ref.plot_history(20)
 
-    adata_ref_copy = model_ref.export_posterior(adata_ref_copy, use_quantiles=True)
+    adata_ref_copy = model_ref.export_posterior(adata_ref_copy)
     if plots:
         model_ref.plot_QC()
 
