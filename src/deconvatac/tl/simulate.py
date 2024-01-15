@@ -34,7 +34,7 @@ class Sampler:
         cell_type_key: str,
         num_spots: int,
         n_regions: int,
-        region_type: str = "uniform",
+        region_type: str = "stripes",
         cell_number_mean: [int, list] = 6,
         cell_number_nu: [float, list] = 20.0,
         cell_type_number: [int, list] = 4,
@@ -260,16 +260,41 @@ def generate_spatial_data(
     """
     Generate spatial data.
 
+    Parameters
+    ----------
+    reference : Union[mu.MuData, ad.AnnData]
+        The reference dataset used for generating spatial data.
+    cell_type_key : str
+        The key in the reference dataset that specifies the cell type information.
+    num_spots : int, optional
+        The number of spots (locations) to generate, by default 1024.
+    n_regions : int, optional
+        The number of spatial regions to generate, by default 5.
+    balance : str, optional
+        The balancing method to use for generating spatial data, by default None.
+    cell_number_mean : Union[int, list], optional
+        The mean number of cells per spot, by default 6.
+    cell_number_nu : Union[float, list], optional
+        The dispersion parameter for the negative binomial distribution used to model cell numbers, by default 20.0.
+    cell_type_number : Union[int, list], optional
+        The number of cell types to generate, by default 4.
+    **kwargs
+        Additional keyword arguments.
+
     Returns
     -------
-        anndata.AnnData: Generated spatial data.
-    """
-    # 1. Take adata or mdata
-    # 2. Downsample if needed
-    # 3. Define number of regions you want (+ maybe layout?)
-    # 4. Define composition of each region
-    # 5. Define cell type proportions in each region
+    Union[ad.AnnData, mu.MuData]
+        The generated spatial data.
 
+    Notes
+    -----
+    This function generates spatial data based on a reference dataset. It uses a sampling approach to generate
+    synthetic spatial data with specified characteristics such as cell type composition, cell numbers, and spatial
+    organization.
+
+    The generated spatial data is returned as an `AnnData` object if the reference dataset is an `AnnData` object,
+    or as a `MuData` object if the reference dataset is a `MuData` object.
+    """
     np.random.seed(0)
     sampler = Sampler(
         reference=reference,
