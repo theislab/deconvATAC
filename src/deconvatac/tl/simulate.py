@@ -1,10 +1,8 @@
 import math
-import os
 from typing import Optional
 
 import anndata as ad
 import muon as mu
-import numba as nb
 import numpy as np
 import pandas as pd
 import scipy
@@ -40,6 +38,36 @@ class Sampler:
         cell_type_number: [int, list] = 4,
         balance: Optional[str] = "balanced",
     ):
+        """
+        Initialize a Sampler object.
+
+        Parameters
+        ----------
+        reference : Union[mu.MuData, ad.AnnData]
+            The reference dataset from which to sample cells and clusters.
+        cell_type_key : str
+            The key in the dataset's observation metadata that represents the cell type.
+        num_spots : int
+            The number of spots to sample.
+        n_regions : int
+            The number of regions to define for sampling.
+        region_type : str, optional
+            The type of regions to define for sampling. Default is "stripes".
+        cell_number_mean : Union[int, list], optional
+            The mean number of cells per region or a list of mean numbers for each region. Default is 6.
+        cell_number_nu : Union[float, list], optional
+            The dispersion parameter for the Conway-Maxwell-Poisson distribution for the number of cells per region
+            or a list of parameters for each region. Default is 20.0.
+        cell_type_number : Union[int, list], optional
+            The number of cell types to sample per region or a list of numbers for each region. Default is 4.
+        balance : str, optional
+            The balance option for sampling. Must be one of ["balanced", "unbalanced"]. Default is "balanced".
+
+
+        Returns
+        -------
+        None
+        """
         self.reference = reference
         self.cell_type_key = cell_type_key
         self.num_spots = num_spots
@@ -80,12 +108,9 @@ class Sampler:
         """
         Initialize the sample probabilities based on cell type counts.
 
-        Args:
-            cell_type_key (str): Key for the cell type column in the dataset.
-
         Returns
         -------
-            None
+        None
         """
         cell_counts = self.obs[self.cell_type_key].value_counts(normalize=True)
 
@@ -100,7 +125,23 @@ class Sampler:
         self.cluster_p = self.cluster_p[self.clusters]
 
     def define_regions(self, used_clusters):
-        """Define the regions to sample from."""
+        """
+        Define the regions to sample from.
+
+        Parameters
+        ----------
+        used_clusters : dict
+            A dictionary containing the clusters to be used in each region.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If the region_type parameter is not one of ['stripes', 'circles', 'gradient_number', 'gradient_celltype']
+        """
         if self.region_type == "circles":
             self.circle_regions()
         elif self.region_type == "stripes":
@@ -115,7 +156,13 @@ class Sampler:
             )
 
     def stripe_regions(self):
-        """Define regions as stripes."""
+        """
+        Define regions as stripes.
+
+        Returns
+        -------
+        None
+        """
         X, Y = self.get_coords()
         # Calculate the height of each stripe
         stripe_height = X.shape[0] / self.n_regions
@@ -123,7 +170,13 @@ class Sampler:
         self.regions = np.floor_divide(Y, stripe_height).ravel().astype(int)
 
     def circle_regions(self):
-        """Define regions in circles."""
+        """
+        Define regions in circles.
+
+        Returns
+        -------
+        None
+        """
         X, Y = self.get_coords()
         grid_size = X.shape[0]
         # Define the center of the circles
@@ -145,7 +198,13 @@ class Sampler:
         self.regions = regions.ravel()
 
     def gradient_number_regions(self):
-        """Define regions as a gradient."""
+        """
+        Define regions as a gradient.
+
+        Returns
+        -------
+        None
+        """
         # one region but we change the cell type probabilities
         self.n_regions = 10
         self.cell_number_mean = np.linspace(self.cell_number_mean[0], self.cell_number_mean[1], self.n_regions).astype(
@@ -155,7 +214,18 @@ class Sampler:
         self.stripe_regions()
 
     def gradient_celltype_regions(self, used_clusters):
-        """Define regions as a gradient."""
+        """
+        Define regions as a gradient.
+
+        Parameters
+        ----------
+        used_clusters : list
+            The clusters to be used in the gradient cell type regions.
+
+        Returns
+        -------
+        None
+        """
         # one region but we change the cell type probabilities
         self.n_regions = 10
         self.cell_number_nu = np.ones(self.n_regions) * self.cell_number_nu[0]
@@ -169,7 +239,14 @@ class Sampler:
             self.cell_p[region][cluster_mask] = self.cell_p[region][cluster_mask] + (region)
 
     def sample_data(self):
-        """Sample data from the given dataset."""
+        """
+        Sample data from the given dataset.
+
+        Returns
+        -------
+        tuple
+            A tuple of expression and density arrays.
+        """
         used_clusters = {
             region: np.random.choice(self.cluster_p.index, size=(cell_type_number), p=self.cluster_p, replace=False)
             for region, cell_type_number in enumerate(self.cell_type_number)
@@ -205,12 +282,19 @@ class Sampler:
         """
         Sample cells based on given parameters.
 
-        Args:
-            params (np.ndarray): Array of cell and cluster counts.
+        Parameters
+        ----------
+        params : np.ndarray
+            Array of cell and cluster counts.
 
         Returns
         -------
-            tuple: Tuple of expression and density arrays.
+        tuple
+            A tuple of expression and density arrays.
+
+        Raises
+        ------
+        None
         """
         sample_exp = {"tmp": self.reference} if isinstance(self.reference, ad.AnnData) else self.reference.mod
         exp = {key: np.zeros((len(params), adata.shape[1])) for key, adata in sample_exp.items()}
@@ -235,7 +319,14 @@ class Sampler:
         return exp, density
 
     def get_coords(self):
-        """Get the coordinates for the spots."""
+        """
+        Get the coordinates for the spots.
+
+        Returns
+        -------
+        tuple
+            A tuple of X and Y coordinates.
+        """
         # Create a grid
         grid_size = int(np.sqrt(self.num_spots))
         x = np.arange(0, grid_size)
