@@ -1,0 +1,38 @@
+
+
+
+seml:
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/cell2location/experiment_runner_heart.py
+  name: cell2loc_heart
+  output_dir: scripts/cell2location/logs
+  project_root_dir: /vol/storage/ouologuems/deconvATAC
+  description: Cell2location Heart Datasets
+  conda_environment: cell2loc_env
+
+slurm:
+  experiments_per_job: 1
+  sbatch_options:
+    mem: 50G          # memory
+    cpus-per-task: 1  # num cores
+    time: 0-10:00     # max time, D-HH:MM
+
+
+
+
+fixed:
+  data.adata_reference_path: /vol/storage/ouologuems/data/Heart_ref_atac.h5ad
+  data.var_HVF_column: highly_variable
+  data.labels_key: cell_type
+
+  model.use_gpu: False
+  model.detection_alpha: 20
+  model.N_cells_per_location: 30
+  model.output_path: /vol/storage/ouologuems/seml/results/cell2location/
+
+grid: 
+  data.adata_spatial_path: 
+    type: choice
+    options: 
+      - /vol/storage/ouologuems/data/Heart1_atac.h5ad
+      - /vol/storage/ouologuems/data/Heart2_atac.h5ad
+      - /vol/storage/ouologuems/data/Heart3_atac.h5ad
