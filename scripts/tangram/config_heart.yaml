@@ -1,0 +1,35 @@
+
+
+
+seml:
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/tangram/experiment_runner_heart.py
+  name: tangram_heart
+  output_dir: scripts/tangram/logs
+  project_root_dir: /vol/storage/ouologuems/deconvATAC
+  description: Tangram Heart Datasets
+  conda_environment: cell2loc_env
+
+slurm:
+  experiments_per_job: 1
+  sbatch_options:
+    mem: 50G          # memory
+    cpus-per-task: 1  # num cores
+    time: 0-10:00     # max time, D-HH:MM
+
+
+
+
+fixed:
+  data.adata_reference_path: /vol/storage/ouologuems/data/Heart_ref_atac.h5ad
+  data.var_HVF_column: highly_variable
+  data.labels_key: cell_type
+  
+  model.output_path: /vol/storage/ouologuems/seml/results/Tangram/
+
+grid: 
+  data.adata_spatial_path: 
+    type: choice
+    options: 
+      - /vol/storage/ouologuems/data/Heart1_atac.h5ad
+      - /vol/storage/ouologuems/data/Heart2_atac.h5ad
+      - /vol/storage/ouologuems/data/Heart3_atac.h5ad
