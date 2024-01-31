@@ -44,3 +44,41 @@ def highly_variable_peaks(
     adata.var["highly_variable"] = adata.var.index.isin(hv_features)
 
     return
+
+
+def highly_accessible_peaks(adata: AnnData, layer: str = None, n_top_features: int = 20000, copy: bool = False):
+    """
+    Selects the most accessible peaks from the given AnnData object.
+
+    Parameters
+    ----------
+        adata (AnnData): Annotated data object containing the peaks.
+        layer (str, optional): Name of the layer to use for peak accessibility. Defaults to None.
+        n_top_features (int, optional): Number of top accessible peaks to select. Defaults to 20000.
+        copy (bool, optional): Whether to copy the AnnData object. Defaults to False.
+
+    Returns
+    -------
+        AnnData: Annotated data object with the highly accessible peaks annotated.
+    """
+    if copy:
+        adata = adata.copy()
+
+    if layer is not None:
+        matrix = adata.layers[layer]
+    else:
+        matrix = adata.X
+
+    # binarize the matrix
+    matrix = matrix > 0
+
+    # get indices of the top n features with the highest sum
+    idx = np.argpartition(matrix.sum(axis=0).A.squeeze(), -n_top_features)[-n_top_features:]
+    # step 5: save HVF to anndata
+    hv_features = adata.var.index.values[idx]
+
+    adata.var["highly_accessible"] = adata.var.index.isin(hv_features)
+    if copy:
+        return adata
+    else:
+        return
