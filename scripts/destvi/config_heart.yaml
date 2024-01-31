@@ -20,7 +20,7 @@ slurm:
 
 
 fixed:
-  method.method_id: "Tangram"
+  method.method_id: "DestVI"
 
   data.mdata_reference_path: /vol/storage/data/cellxgene/human_cardiac_niches/human_cardiac_niches.h5mu
   data.var_HVF_column: highly_variable
