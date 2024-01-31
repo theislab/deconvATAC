@@ -1,6 +1,7 @@
 from sacred import Experiment
 import seml
 import scanpy as sc
+import mudata as mu
 from deconvatac.tl import cell2location
 
 
@@ -34,20 +35,25 @@ class ExperimentWrapper:
             self.init_all()
 
     @ex.capture(prefix="data")
-    def init_dataset(self, adata_spatial_path, adata_reference_path, var_HVF_column, labels_key):
+    def init_dataset(self, mdata_spatial_path, mdata_reference_path, var_HVF_column, labels_key, modality):
 
-        self.spatial_path = adata_spatial_path
-        self.adata_spatial = sc.read_h5ad(adata_spatial_path)
-        self.adata_reference = sc.read_h5ad(adata_reference_path)
+        self.spatial_path =  mdata_spatial_path
+        self.adata_spatial = mu.read_h5mu(mdata_spatial_path).mod[modality]
+        self.adata_reference = mu.read_h5mu(mdata_reference_path).mod[modality]
         # subset on HVFs
         self.adata_spatial = self.adata_spatial[:, self.adata_reference.var[var_HVF_column]]
         self.adata_reference = self.adata_reference[:, self.adata_reference.var[var_HVF_column]]
 
         self.labels_key = labels_key
         
+    @ex.capture(prefix="method")
+    def init_method(self, method_id):
+        self.method_id =  method_id
+    
     
     def init_all(self):
         self.init_dataset()
+        self.init_method()
 
     @ex.capture(prefix="model")
     def run(self, detection_alpha, N_cells_per_location, output_path, use_gpu):
@@ -64,7 +70,9 @@ class ExperimentWrapper:
                         plots = False)
 
         results = {
-            "save_path": output_path
+            "result_path": output_path + "/q05_cell_abundance_w_sf.csv", 
+            "result_path2": output_path + "/means_cell_abundance_w_sf.csv",
+            "dataset": dataset
         }
         return results
 
