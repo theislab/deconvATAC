@@ -1,8 +1,7 @@
 from sacred import Experiment
 import seml
-import scanpy as sc
 import mudata as mu
-from deconvatac.tl import tangram
+from deconvatac.tl import destvi
 
 
 ex = Experiment()
@@ -60,17 +59,15 @@ class ExperimentWrapper:
         
         dataset = self.spatial_path.split("/")[-1].split(".")[0]
         output_path = output_path + dataset
-        tangram(
+        destvi(
                 adata_spatial=self.adata_spatial,
                 adata_ref=self.adata_reference,
                 labels_key=self.labels_key,
-                run_rank_genes=False,
-                device="cuda",
-                result_path=output_path
+                results_path=output_path
             )
 
         results = {
-            "result_path": output_path + "/tangram_ct_pred.csv", 
+            "result_path": output_path + "/predicted_proportions.csv", 
             "dataset": dataset
         }
         return results
