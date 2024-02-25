@@ -1,0 +1,38 @@
+
+
+
+seml:
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/rctd/experiment_runner_heart.py
+  name: rctd_heart
+  output_dir: /vol/storage/data/deconvolution_results/rctd/logs
+  project_root_dir: /vol/storage/ouologuems/deconvATAC
+  description: RCTD Heart Datasets
+  conda_environment: atac2space
+
+slurm:
+  experiments_per_job: 1
+  sbatch_options:
+    mem: 50G          # memory
+    cpus-per-task: 1  # num cores
+    time: 0-10:00     # max time, D-HH:MM
+
+
+
+
+fixed:
+  method.method_id: "RCTD"
+
+  data.mdata_reference_path: /vol/storage/data/cellxgene/human_cardiac_niches/human_cardiac_niches.h5mu
+  data.var_HVF_column: highly_variable
+  data.labels_key: cell_type
+  data.modality: atac
+  
+  model.output_path: /vol/storage/data/deconvolution_results/rctd/
+
+grid: 
+  data.mdata_spatial_path: 
+    type: choice
+    options: 
+      - /vol/storage/data/simulations/Heart_1.h5mu
+      - /vol/storage/data/simulations/Heart_2.h5mu
+      - /vol/storage/data/simulations/Heart_3.h5mu
