@@ -29,7 +29,7 @@ fixed:
   model.use_gpu: False
   model.detection_alpha: 20
   model.N_cells_per_location: 30
-  model.output_path: /vol/storage/data/deconvolution_results/cell2location 
+  model.output_path: /vol/storage/data/deconvolution_results/cell2location/
 
 grid: 
   data.mdata_spatial_path: 
