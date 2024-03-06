@@ -2,12 +2,12 @@
 
 
 seml:
-  executable: /vol/storage/ouologuems/deconvATAC/scripts/cell2location/experiment_runner_heart.py
-  name: cell2loc_heart
-  output_dir: /vol/storage/data/deconvolution_results/cell2location/logs
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/rctd/experiment_runner_heart.py
+  name: rctd_heart
+  output_dir: /vol/storage/data/deconvolution_results/rctd/logs
   project_root_dir: /vol/storage/ouologuems/deconvATAC
-  description: Cell2location Heart Datasets
-  conda_environment: cell2loc_env
+  description: RCTD Heart Datasets
+  conda_environment: atac2space
 
 slurm:
   experiments_per_job: 1
@@ -20,16 +20,14 @@ slurm:
 
 
 fixed:
-  method.method_id: "Cell2Location"
+  method.method_id: "RCTD"
+
   data.mdata_reference_path: /vol/storage/data/cellxgene/human_cardiac_niches/human_cardiac_niches.h5mu
   data.var_HVF_column: highly_variable
   data.labels_key: cell_type
   data.modality: atac
-
-  model.use_gpu: False
-  model.detection_alpha: 20
-  model.N_cells_per_location: 30
-  model.output_path: /vol/storage/data/deconvolution_results/cell2location/
+  
+  model.output_path: /vol/storage/data/deconvolution_results/rctd/
 
 grid: 
   data.mdata_spatial_path: 
