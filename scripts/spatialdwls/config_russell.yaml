@@ -1,0 +1,35 @@
+
+
+
+seml:
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/spatialdwls/experiment_runner_russell.py
+  name: spatialdwls_russell
+  output_dir: /vol/storage/data/deconvolution_results/spatialdwls/logs
+  project_root_dir: /vol/storage/ouologuems/deconvATAC
+  description: SpatialDWLS Russell Dataset
+  conda_environment: giotto
+
+slurm:
+  experiments_per_job: 1
+  sbatch_options:
+    mem: 50G          # memory
+    cpus-per-task: 1  # num cores
+    time: 0-10:00     # max time, D-HH:MM
+
+
+
+
+fixed:
+  method.method_id: "SpatialDWLS"
+
+  data.mdata_reference_path: /vol/storage/data/simulations/russel_ref.h5mu
+  data.mdata_spatial_path: /vol/storage/data/simulations/russell_250.h5mu
+  data.var_HVF_column: highly_variable
+  data.labels_key: cell_type
+  data.modality: rna
+  
+  model.output_path: /vol/storage/data/deconvolution_results/spatialdwls/rna/
+  model.n_cell: 10
+  model.dimred: PCA
+  model.r_lib_path: /vol/storage/miniconda3/envs/giotto/lib/R/library
+
