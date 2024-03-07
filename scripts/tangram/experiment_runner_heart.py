@@ -22,7 +22,6 @@ def config():
         ex.observers.append(seml.create_mongodb_observer(db_collection, overwrite=overwrite))
 
 
-
 class ExperimentWrapper:
     """
     A simple wrapper around a sacred experiment, making use of sacred's captured functions with prefixes.
@@ -37,7 +36,7 @@ class ExperimentWrapper:
     @ex.capture(prefix="data")
     def init_dataset(self, mdata_spatial_path, mdata_reference_path, var_HVF_column, labels_key, modality):
 
-        self.spatial_path =  mdata_spatial_path
+        self.spatial_path = mdata_spatial_path
         self.adata_spatial = mu.read_h5mu(mdata_spatial_path).mod[modality]
         self.adata_reference = mu.read_h5mu(mdata_reference_path).mod[modality]
         # subset on HVFs
@@ -45,34 +44,30 @@ class ExperimentWrapper:
         self.adata_reference = self.adata_reference[:, self.adata_reference.var[var_HVF_column]]
 
         self.labels_key = labels_key
-        
+
     @ex.capture(prefix="method")
     def init_method(self, method_id):
-        self.method_id =  method_id
-    
+        self.method_id = method_id
+
     def init_all(self):
         self.init_dataset()
         self.init_method()
 
-
     @ex.capture(prefix="model")
-    def run(self,output_path):
-        
+    def run(self, output_path):
+
         dataset = self.spatial_path.split("/")[-1].split(".")[0]
         output_path = output_path + dataset
         tangram(
-                adata_spatial=self.adata_spatial,
-                adata_ref=self.adata_reference,
-                labels_key=self.labels_key,
-                run_rank_genes=False,
-                device="cuda",
-                result_path=output_path
-            )
+            adata_spatial=self.adata_spatial,
+            adata_ref=self.adata_reference,
+            labels_key=self.labels_key,
+            run_rank_genes=False,
+            device="cuda",
+            result_path=output_path,
+        )
 
-        results = {
-            "result_path": output_path + "/tangram_ct_pred.csv", 
-            "dataset": dataset
-        }
+        results = {"result_path": output_path + "/tangram_ct_pred.csv", "dataset": dataset}
         return results
 
 
