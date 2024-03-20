@@ -8,10 +8,10 @@ def spatialdwls(
     adata_spatial, 
     adata_ref, 
     labels_key,
+    cluster_key = "leiden",
     n_cell=50,
-    dimred = "LSI",
+    tfidf=True,
     r_lib_path=None, 
-    python_lib_path=None,
     results_path="./spatialdwls_results", 
 ): 
     
@@ -29,14 +29,14 @@ def spatialdwls(
          Normalized counts are expected to be saved in .X. Names of observations and features are expected as row names of adata_ref.obs and adata_ref.var. 
     labels_key : str
         Cell type key in adata_ref.obs for label information.
+    cluster_key : str
+        Cluster key in adata_spatial.obs for cluster information.
     n_cell : int
         Number of cells per spot.
-    dimred : str ["PCA", "LSI"]
-        Dimensionality reduction to run and use for leiden clustering. 
+    tfidf : bool
+        Whether the normalized counts are TFIDF-normalized.
     r_lib_path : str
         Path to R library.  
-    python_lib_path : str
-        Path to python library.  
     results_path : str
         Path to save estimated cell type abundances to. 
     
@@ -53,9 +53,6 @@ def spatialdwls(
     if r_lib_path is not None:
         robjects.r.assign("r_path", r_lib_path)
         robjects.r(".libPaths(r_path)")
-    if python_lib_path is not None:
-        robjects.r.assign("python_path", python_lib_path) 
-        robjects.r("reticulate::use_python(required = T, python = python_path)")
 
     # Load spatialdwls package
     robjects.r("""
@@ -68,6 +65,7 @@ def spatialdwls(
     scexp_sc = anndata2ri._py2r.py2rpy_anndata(adata_ref_copy)
     robjects.r.assign("scexp_sc", scexp_sc)
     robjects.r.assign("labels_key", labels_key)
+    robjects.r.assign("tfidf", tfidf)
     robjects.r("""
                 counts_sc = assay(scexp_sc,"X")
                 meta_sc = as.data.table(scexp_sc@colData)
@@ -82,22 +80,10 @@ def spatialdwls(
                
                 signature_matrix = makeSignMatrixDWLS(giotto_obj_ref,
                                     expression_values = "normalized",
-                                    sign_gene = highly_variable,
+                                    sign_gene = highly_variable,reverse_log = !tfidf,
                                     cell_type_vector = meta_sc[, get(labels_key)])
                 """)
         
-      
-    # Preprocess spatial data & compute leiden clustering 
-    print("Computing leiden clustering on spatial data")
-    if dimred == "PCA":
-        sc.pp.pca(adata_spatial_copy)
-        sc.pp.neighbors(adata_spatial_copy)
-        sc.tl.leiden(adata_spatial_copy)
-    elif dimred == "LSI": 
-        lsi.lsi(adata_spatial_copy)
-        sc.pp.neighbors(adata_spatial_copy, use_rep="X_lsi")
-        sc.tl.leiden(adata_spatial_copy)
-
     # Load spatial data into R
     print("Loading spatial data into R")
     scexp_st = anndata2ri._py2r.py2rpy_anndata(adata_spatial_copy)
@@ -117,12 +103,11 @@ def spatialdwls(
                 giotto_obj_spatial = set_expression_values(gobject = giotto_obj_spatial,values = norm_expr)
                 """)
 
-
-
     # Run deconvolution 
     print("Running deconvolution")
     robjects.r.assign("n_cell", n_cell)
-    robjects.r("giotto_obj_spatial = runDWLSDeconv(giotto_obj_spatial, cluster_column='leiden', sign_matrix=signature_matrix, n_cell=n_cell)")
+    robjects.r.assign("cluster_col", cluster_key)
+    robjects.r("giotto_obj_spatial = runDWLSDeconv(giotto_obj_spatial, cluster_column=cluster_col, sign_matrix=signature_matrix, n_cell=n_cell)")
 
     # Save results 
     print("Saving results")
