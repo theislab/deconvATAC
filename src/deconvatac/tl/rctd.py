@@ -90,7 +90,7 @@ def rctd(
     robjects.r.assign("doublet_mode", doublet_mode)
     robjects.r(
         """
-                myRCTD = do.call(create.RCTD, c(list(spatialRNA=puck, reference=reference),create_rctd_values))
+                myRCTD = do.call(create.RCTD, c(list(spatialRNA=puck, reference=reference, max_cores=1),create_rctd_values))
                 myRCTD = run.RCTD(myRCTD, doublet_mode=doublet_mode)
                 results = myRCTD@results
                 dir.create(results_path)
