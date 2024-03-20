@@ -1,3 +1,4 @@
+import os
 
 
 def cell2location(
@@ -67,7 +68,6 @@ def cell2location(
     - Saves 'q05_cell_abundance_w_sf' and 'means_cell_abundance_w_sf' as csv-files to results_path.
     - If return_adatas=True, returns tupel (adata_spatial, adata_ref) with saved deconvolution results.
     """
-    import os
     import cell2location as c2l
 
     adata_ref_copy = adata_ref.copy()
