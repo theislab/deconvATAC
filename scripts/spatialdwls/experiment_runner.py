@@ -35,7 +35,7 @@ class ExperimentWrapper:
             self.init_all()
 
     @ex.capture(prefix="data")
-    def init_dataset(self, mdata_spatial_path, mdata_reference_path, var_HVF_column, labels_key, modality):
+    def init_dataset(self, mdata_spatial_path, mdata_reference_path, var_HVF_column, labels_key, modality, layer, cluster_column):
 
         self.spatial_path =  mdata_spatial_path
         self.adata_spatial = mu.read_h5mu(mdata_spatial_path).mod[modality]
@@ -44,19 +44,18 @@ class ExperimentWrapper:
         self.adata_spatial = self.adata_spatial[:, self.adata_reference.var[var_HVF_column]]
         self.adata_reference = self.adata_reference[:, self.adata_reference.var[var_HVF_column]]
 
-        self.modality =modality
-        if self.modality == "rna":
-            self.tfidf = False
-            self.adata_spatial.X = self.adata_spatial.layers["log_norm"]
-            self.adata_reference.X = self.adata_reference.layers["log_norm"]
-            self.cluster_key = "leiden_pca"
-        elif self.modality == "atac": 
+        self.adata_spatial.X = self.adata_spatial.layers[layer]
+        self.adata_reference.X = self.adata_reference.layers[layer]
+        self.cluster_key = cluster_column
+        self.modality = modality
+
+        if layer == "tfidf_normalized":
             self.tfidf = True
-            self.adata_spatial.X = self.adata_spatial.layers["tfidf_normalized"]
-            self.adata_reference.X = self.adata_reference.layers["tfidf_normalized"]
-            self.cluster_key = "leiden_lsi"
+        else:
+            self.tfidf = False
 
         self.labels_key = labels_key
+        self.var_HVF_column = var_HVF_column
         
     @ex.capture(prefix="method")
     def init_method(self, method_id):
@@ -71,7 +70,8 @@ class ExperimentWrapper:
     def run(self,output_path, n_cell, r_lib_path):
         
         dataset = self.spatial_path.split("/")[-1].split(".")[0]
-        output_path = output_path + self.modality + '/' + dataset
+        dataset_var_column = dataset + "_" + self.var_HVF_column
+        output_path = output_path + self.modality + '/' + dataset_var_column
         spatialdwls(adata_spatial=self.adata_spatial, 
                     adata_ref=self.adata_reference, 
                     labels_key = self.labels_key,
@@ -84,7 +84,8 @@ class ExperimentWrapper:
         results = {
             "result_path": output_path + "/proportions.csv", 
             "dataset": dataset, 
-            "modality": self.modality
+            "modality": self.modality,
+            "var_HVF_column": self.var_HVF_column
         }
         return results
 
