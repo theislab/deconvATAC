@@ -41,13 +41,13 @@ class ExperimentWrapper:
         self.adata_spatial = mu.read_h5mu(mdata_spatial_path).mod[modality]
         self.adata_reference = mu.read_h5mu(mdata_reference_path).mod[modality]
         # subset on HVFs
-        self.adata_spatial = self.adata_spatial[:, self.adata_reference.var[var_HVF_column]]
-        self.adata_reference = self.adata_reference[:, self.adata_reference.var[var_HVF_column]]
+        self.adata_spatial = self.adata_spatial[:, self.adata_reference.var[var_HVF_column]].copy()
+        self.adata_reference = self.adata_reference[:, self.adata_reference.var[var_HVF_column]].copy()
 
         self.adata_spatial.X = self.adata_spatial.layers[layer]
         self.adata_reference.X = self.adata_reference.layers[layer]
         self.cluster_key = cluster_column
-        self.modality = modality
+        self.modality = modality 
 
         if layer == "tfidf_normalized":
             self.tfidf = True
@@ -56,6 +56,10 @@ class ExperimentWrapper:
 
         self.labels_key = labels_key
         self.var_HVF_column = var_HVF_column
+
+        ### necessary for brain reference 
+        if "human_developing_cerebral_cortex" in mdata_reference_path:
+            self.adata_reference.var = self.adata_reference.var[[var_HVF_column]]
         
     @ex.capture(prefix="method")
     def init_method(self, method_id):

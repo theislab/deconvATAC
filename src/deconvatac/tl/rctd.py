@@ -1,12 +1,10 @@
-from rpy2 import robjects
-import anndata2ri
 
 
 def rctd(
     adata_spatial, 
     adata_ref, 
     labels_key,
-    doublet_mode = 'doublet',
+    doublet_mode = 'full',
     r_lib_path=None, 
     results_path="./rctd_results", 
     create_rctd_kwargs = {}
@@ -23,10 +21,9 @@ def rctd(
         AnnData of the reference data.
     labels_key : str
         Cell type key in adata_ref.obs for label information
-    doublet_mode: str ["doublet", "multi", "full"]
+    doublet_mode: str ["doublet", "full"]
         On which mode to run RCTD:  'doublet' (at most 1-2 cell types per pixel),
-                                    'full' (no restrictions on number of cell types),
-                                    'multi' (finitely many cell types per pixel, e.g. 3 or 4)
+                                    'full' (no restrictions on number of cell types)
     r_lib_path : str
         Path to R library.   
     results_path : str
@@ -39,6 +36,9 @@ def rctd(
 
     - Saves estimated proportions as csv-file to results_path.
     '''
+    from rpy2 import robjects
+    import anndata2ri
+
     if r_lib_path is not None:
         robjects.r.assign("lib_path", r_lib_path)
         robjects.r(".libPaths(lib_path)")
@@ -92,8 +92,18 @@ def rctd(
         """
                 myRCTD = do.call(create.RCTD, c(list(spatialRNA=puck, reference=reference, max_cores=1),create_rctd_values))
                 myRCTD = run.RCTD(myRCTD, doublet_mode=doublet_mode)
-                results = myRCTD@results
-                dir.create(results_path)
-                write.csv(results$results_df, paste0(results_path, "/estimated_proportions.csv"))
                 """
     )
+    if doublet_mode == "full":
+        robjects.r("""
+                    weights = myRCTD@results$weights
+                    norm_weights <- normalize_weights(weights)
+                    dir.create(results_path)
+                    write.csv(as.data.frame(as.matrix(norm_weights)), paste0(results_path, "/estimated_proportions.csv"))
+                    """)
+    elif doublet_mode == "doublet":
+        robjects.r("""
+                    results = myRCTD@results
+                    dir.create(results_path)
+                    write.csv(results$results_df, paste0(results_path, "/estimated_proportions.csv"))
+                    """)

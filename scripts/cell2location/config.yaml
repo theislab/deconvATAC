@@ -1,28 +1,32 @@
 
 
+
 seml:
-  executable: /vol/storage/ouologuems/deconvATAC/scripts/spatialdwls/experiment_runner.py
-  name: spatialdwls
-  output_dir: /vol/storage/data/deconvolution_results/spatialdwls/logs
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/cell2location/experiment_runner.py
+  name: cell2location
+  output_dir: /vol/storage/data/deconvolution_results/cell2location/logs
   project_root_dir: /vol/storage/ouologuems/deconvATAC
-  description: SpatialDWLS 
-  conda_environment: giotto
+  description: Cell2location
+  conda_environment: cell2loc_env
 
 slurm:
   experiments_per_job: 1
   sbatch_options:
-    mem: 120G          # memory
-    cpus-per-task: 2  # num cores
-    time: 0-30:00     # max time, D-HH:MM
+    mem: 100G          # memory
+    cpus-per-task: 16  # num cores
+    time: 0-60:00     # max time, D-HH:MM
+
+
 
 
 
 fixed:
-  method.method_id: "SpatialDWLS"
+  method.method_id: "Cell2Location"
 
-  model.n_cell: 10
-  model.output_path: /vol/storage/data/deconvolution_results/spatialdwls/
-  model.r_lib_path: /vol/storage/miniconda3/envs/giotto/lib/R/library
+  model.use_gpu: True
+  model.detection_alpha: 20
+  model.N_cells_per_location: 8
+  model.output_path: /vol/storage/data/deconvolution_results/cell2location/
 
 
 # RUSSELL
@@ -40,8 +44,6 @@ Russell:
   ATAC: 
     fixed:
       data.modality: "atac"
-      data.layer: "tfidf_normalized"
-      data.cluster_column: "leiden_lsi"
     
     grid:
       data.var_HVF_column: 
@@ -54,8 +56,6 @@ Russell:
     fixed:
       data.modality: "rna"
       data.var_HVF_column: "highly_variable"
-      data.layer: "log_norm"
-      data.cluster_column: "leiden_pca"
 
 
 # HEART SIMULATIONS
@@ -76,8 +76,6 @@ Heart:
   ATAC: 
     fixed:
       data.modality: "atac"
-      data.layer: "tfidf_normalized"
-      data.cluster_column: "leiden_lsi"
     
     grid:
       data.var_HVF_column: 
@@ -90,12 +88,9 @@ Heart:
     fixed:
       data.modality: "rna"
       data.var_HVF_column: "highly_variable"
-      data.layer: "log_norm"
-      data.cluster_column: "leiden_pca"
 
 
-
-#BRAIN SIMULATIONS
+# BRAIN SIMULATIONS
 Brain:
   fixed:
     data.mdata_reference_path: /vol/storage/data/simulations/human_developing_cerebral_cortex.h5mu
@@ -113,9 +108,7 @@ Brain:
   ATAC: 
     fixed:
       data.modality: "atac"
-      data.layer: "tfidf_normalized"
-      data.cluster_column: "leiden_lsi"
-
+    
     grid:
       data.var_HVF_column: 
         type: choice
@@ -127,7 +120,6 @@ Brain:
     fixed:
       data.modality: "rna"
       data.var_HVF_column: "highly_variable"
-      data.layer: "log_norm"
-      data.cluster_column: "leiden_pca"
+
 
   

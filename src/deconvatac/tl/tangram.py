@@ -2,7 +2,6 @@ import os
 import numpy as np
 import pandas as pd
 import scanpy as sc
-import tangram as tg
 
 
 def tangram(
@@ -51,7 +50,7 @@ def tangram(
     - Saves estimated proportions as csv-file to results_path.
     - If return_adatas=True, returns tupel (adata_spatial, adata_ref) with saved deconvolution results.
     """
-
+    import tangram as tg
     adata_ref_copy = adata_ref.copy()
     adata_spatial_copy = adata_spatial.copy()
 

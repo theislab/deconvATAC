@@ -1,7 +1,3 @@
-from rpy2 import robjects
-import anndata2ri
-import scanpy as sc
-from deconvatac.tl import lsi
 
 
 def spatialdwls(
@@ -47,6 +43,11 @@ def spatialdwls(
     - Saves estimated proportions as csv-file to results_path.
     '''
 
+    from rpy2 import robjects
+    import anndata2ri
+    import scanpy as sc
+    from deconvatac.tl import lsi
+    
     adata_spatial_copy = adata_spatial.copy()
     adata_ref_copy = adata_ref.copy()
 

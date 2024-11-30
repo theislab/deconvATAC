@@ -1,12 +1,13 @@
 
 
+
 seml:
-  executable: /vol/storage/ouologuems/deconvATAC/scripts/spatialdwls/experiment_runner.py
-  name: spatialdwls
-  output_dir: /vol/storage/data/deconvolution_results/spatialdwls/logs
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/rctd/experiment_runner.py
+  name: rctd
+  output_dir: /vol/storage/data/deconvolution_results/rctd/logs
   project_root_dir: /vol/storage/ouologuems/deconvATAC
-  description: SpatialDWLS 
-  conda_environment: giotto
+  description: RCTD Datasets
+  conda_environment: atac2space
 
 slurm:
   experiments_per_job: 1
@@ -17,12 +18,13 @@ slurm:
 
 
 
-fixed:
-  method.method_id: "SpatialDWLS"
 
-  model.n_cell: 10
-  model.output_path: /vol/storage/data/deconvolution_results/spatialdwls/
-  model.r_lib_path: /vol/storage/miniconda3/envs/giotto/lib/R/library
+fixed:
+  method.method_id: "RCTD"
+
+  model.output_path: /vol/storage/data/deconvolution_results/rctd/
+  model.r_lib_path: /vol/storage/miniconda3/envs/atac2space_R_copy/lib/R/library
+
 
 
 # RUSSELL
@@ -40,8 +42,6 @@ Russell:
   ATAC: 
     fixed:
       data.modality: "atac"
-      data.layer: "tfidf_normalized"
-      data.cluster_column: "leiden_lsi"
     
     grid:
       data.var_HVF_column: 
@@ -54,8 +54,6 @@ Russell:
     fixed:
       data.modality: "rna"
       data.var_HVF_column: "highly_variable"
-      data.layer: "log_norm"
-      data.cluster_column: "leiden_pca"
 
 
 # HEART SIMULATIONS
@@ -76,8 +74,6 @@ Heart:
   ATAC: 
     fixed:
       data.modality: "atac"
-      data.layer: "tfidf_normalized"
-      data.cluster_column: "leiden_lsi"
     
     grid:
       data.var_HVF_column: 
@@ -90,12 +86,9 @@ Heart:
     fixed:
       data.modality: "rna"
       data.var_HVF_column: "highly_variable"
-      data.layer: "log_norm"
-      data.cluster_column: "leiden_pca"
 
 
-
-#BRAIN SIMULATIONS
+# BRAIN SIMULATIONS
 Brain:
   fixed:
     data.mdata_reference_path: /vol/storage/data/simulations/human_developing_cerebral_cortex.h5mu
@@ -113,9 +106,7 @@ Brain:
   ATAC: 
     fixed:
       data.modality: "atac"
-      data.layer: "tfidf_normalized"
-      data.cluster_column: "leiden_lsi"
-
+    
     grid:
       data.var_HVF_column: 
         type: choice
@@ -127,7 +118,5 @@ Brain:
     fixed:
       data.modality: "rna"
       data.var_HVF_column: "highly_variable"
-      data.layer: "log_norm"
-      data.cluster_column: "leiden_pca"
 
   

@@ -44,6 +44,8 @@ class ExperimentWrapper:
         self.adata_reference = self.adata_reference[:, self.adata_reference.var[var_HVF_column]]
 
         self.labels_key = labels_key
+        self.var_HVF_column = var_HVF_column
+        self.modality = modality
         
     @ex.capture(prefix="method")
     def init_method(self, method_id):
@@ -56,9 +58,11 @@ class ExperimentWrapper:
 
     @ex.capture(prefix="model")
     def run(self,output_path):
-        
+
         dataset = self.spatial_path.split("/")[-1].split(".")[0]
-        output_path = output_path + dataset
+        dataset_var_column = dataset + "_" + self.var_HVF_column
+        output_path = output_path + self.modality + '/' + dataset_var_column
+    
         destvi(
                 adata_spatial=self.adata_spatial,
                 adata_ref=self.adata_reference,
@@ -68,7 +72,9 @@ class ExperimentWrapper:
 
         results = {
             "result_path": output_path + "/predicted_proportions.csv", 
-            "dataset": dataset
+            "dataset": dataset, 
+            "modality": self.modality,
+            "var_HVF_column": self.var_HVF_column
         }
         return results
 
