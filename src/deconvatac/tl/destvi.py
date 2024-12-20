@@ -2,7 +2,6 @@ import os
 import numpy as np
 import scanpy as sc
 import matplotlib.pyplot as plt
-import scvi
 
 
 def destvi(
@@ -66,6 +65,7 @@ def destvi(
     - Saves estimated proportions as csv-file to results_path.
     - If return_adatas=True, returns tupel (adata_spatial, adata_ref) with saved deconvolution results. 
     '''
+    import scvi
     
    # 1. Fit scLVM
     adata_ref_copy = adata_ref.copy()

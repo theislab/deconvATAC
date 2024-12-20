@@ -1,4 +1,4 @@
-# cell2location
+# SpatialDWLS
 
 provide some information about method here
 

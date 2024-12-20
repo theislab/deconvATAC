@@ -1,0 +1,120 @@
+
+
+
+seml:
+  executable: /vol/storage/ouologuems/deconvATAC/scripts/tangram/experiment_runner.py
+  name: tangram
+  output_dir: /vol/storage/data/deconvolution_results/tangram/logs
+  project_root_dir: /vol/storage/ouologuems/deconvATAC
+  description: Tangram
+  conda_environment: cell2loc_env
+
+slurm:
+  experiments_per_job: 1
+  sbatch_options:
+    mem: 100G          # memory
+    cpus-per-task: 16  # num cores
+    time: 0-60:00     # max time, D-HH:MM
+
+
+
+
+fixed:
+  method.method_id: "Tangram"
+  model.output_path: /vol/storage/data/deconvolution_results/tangram/
+
+
+# RUSSELL
+Russell:
+  fixed:
+    data.mdata_reference_path: /vol/storage/data/simulations/russel_ref.h5mu
+    data.labels_key: cell_type
+
+  grid: 
+    data.mdata_spatial_path: 
+      type: choice
+      options: 
+        - /vol/storage/data/simulations/russell_250.h5mu
+
+  ATAC: 
+    fixed:
+      data.modality: "atac"
+    
+    grid:
+      data.var_HVF_column: 
+        type: choice
+        options: 
+          - highly_variable
+          - highly_accessible
+
+  RNA: 
+    fixed:
+      data.modality: "rna"
+      data.var_HVF_column: "highly_variable"
+
+
+# HEART SIMULATIONS
+Heart:
+  fixed:
+    data.mdata_reference_path: /vol/storage/data/cellxgene/human_cardiac_niches/human_cardiac_niches.h5mu
+    data.labels_key: cell_type
+
+  grid: 
+    data.mdata_spatial_path: 
+      type: choice
+      options: 
+        - /vol/storage/data/simulations/Heart_1.h5mu
+        - /vol/storage/data/simulations/Heart_2.h5mu
+        - /vol/storage/data/simulations/Heart_3.h5mu
+        - /vol/storage/data/simulations/Heart_4.h5mu
+
+  ATAC: 
+    fixed:
+      data.modality: "atac"
+    
+    grid:
+      data.var_HVF_column: 
+        type: choice
+        options: 
+          - highly_variable
+          - highly_accessible
+
+  RNA: 
+    fixed:
+      data.modality: "rna"
+      data.var_HVF_column: "highly_variable"
+
+
+# BRAIN SIMULATIONS
+Brain:
+  fixed:
+    data.mdata_reference_path: /vol/storage/data/simulations/human_developing_cerebral_cortex.h5mu
+    data.labels_key: cell_type
+
+  grid: 
+    data.mdata_spatial_path: 
+      type: choice
+      options: 
+        - /vol/storage/data/simulations/Brain_1.h5mu
+        - /vol/storage/data/simulations/Brain_2.h5mu
+        - /vol/storage/data/simulations/Brain_3.h5mu
+        - /vol/storage/data/simulations/Brain_4.h5mu
+
+  ATAC: 
+    fixed:
+      data.modality: "atac"
+    
+    grid:
+      data.var_HVF_column: 
+        type: choice
+        options: 
+          - highly_variable
+          - highly_accessible
+
+  RNA: 
+    fixed:
+      data.modality: "rna"
+      data.var_HVF_column: "highly_variable"
+
+
+  

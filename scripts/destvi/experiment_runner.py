@@ -1,7 +1,7 @@
 from sacred import Experiment
 import seml
 import mudata as mu
-from deconvatac.tl import rctd
+from deconvatac.tl import destvi
 
 
 ex = Experiment()
@@ -44,6 +44,8 @@ class ExperimentWrapper:
         self.adata_reference = self.adata_reference[:, self.adata_reference.var[var_HVF_column]]
 
         self.labels_key = labels_key
+        self.var_HVF_column = var_HVF_column
+        self.modality = modality
         
     @ex.capture(prefix="method")
     def init_method(self, method_id):
@@ -56,20 +58,23 @@ class ExperimentWrapper:
 
     @ex.capture(prefix="model")
     def run(self,output_path):
-        
+
         dataset = self.spatial_path.split("/")[-1].split(".")[0]
-        output_path = output_path + dataset
-        rctd(
+        dataset_var_column = dataset + "_" + self.var_HVF_column
+        output_path = output_path + self.modality + '/' + dataset_var_column
+    
+        destvi(
                 adata_spatial=self.adata_spatial,
                 adata_ref=self.adata_reference,
                 labels_key=self.labels_key,
-                results_path=output_path,
-                r_lib_path = "/vol/storage/miniconda3/envs/atac2space_R_copy/lib/R/library"
+                results_path=output_path
             )
 
         results = {
-            "result_path": output_path + "/estimated_proportions.csv", 
-            "dataset": dataset
+            "result_path": output_path + "/predicted_proportions.csv", 
+            "dataset": dataset, 
+            "modality": self.modality,
+            "var_HVF_column": self.var_HVF_column
         }
         return results
 

@@ -36,7 +36,6 @@ class ExperimentWrapper:
 
     @ex.capture(prefix="data")
     def init_dataset(self, mdata_spatial_path, mdata_reference_path, var_HVF_column, labels_key, modality):
-
         self.spatial_path =  mdata_spatial_path
         self.adata_spatial = mu.read_h5mu(mdata_spatial_path).mod[modality]
         self.adata_reference = mu.read_h5mu(mdata_reference_path).mod[modality]
@@ -44,7 +43,9 @@ class ExperimentWrapper:
         self.adata_spatial = self.adata_spatial[:, self.adata_reference.var[var_HVF_column]]
         self.adata_reference = self.adata_reference[:, self.adata_reference.var[var_HVF_column]]
 
+        self.modality = modality
         self.labels_key = labels_key
+        self.var_HVF_column = var_HVF_column     
         
     @ex.capture(prefix="method")
     def init_method(self, method_id):
@@ -59,7 +60,8 @@ class ExperimentWrapper:
     def run(self, detection_alpha, N_cells_per_location, output_path, use_gpu):
         
         dataset = self.spatial_path.split("/")[-1].split(".")[0]
-        output_path = output_path + dataset
+        dataset_var_column = dataset + "_" + self.var_HVF_column
+        output_path = output_path + self.modality + '/' + dataset_var_column
         cell2location(adata_spatial=self.adata_spatial,
                         adata_ref=self.adata_reference,
                         N_cells_per_location=N_cells_per_location,
@@ -72,7 +74,9 @@ class ExperimentWrapper:
         results = {
             "result_path": output_path + "/q05_cell_abundance_w_sf.csv", 
             "result_path2": output_path + "/means_cell_abundance_w_sf.csv",
-            "dataset": dataset
+            "dataset": dataset, 
+            "modality": self.modality,
+            "var_HVF_column": self.var_HVF_column
         }
         return results
 
