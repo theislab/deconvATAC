@@ -38,4 +38,4 @@ def jsd(true: Union[pd.DataFrame, np.ndarray], predicted: Union[pd.DataFrame, np
     Jensen-Shannon divergence.
     """
     jsd = jensenshannon(true, predicted, axis=1, base=2)
-    return jsd.mean()
+    return np.mean(jsd[np.isfinite(jsd)])
