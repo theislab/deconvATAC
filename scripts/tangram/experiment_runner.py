@@ -45,12 +45,8 @@ class ExperimentWrapper:
 
         self.modality = modality
         self.labels_key = labels_key
-<<<<<<< HEAD:scripts/tangram/experiment_runner_heart.py
-
-=======
         self.var_HVF_column = var_HVF_column
-        
->>>>>>> seml:scripts/tangram/experiment_runner.py
+
     @ex.capture(prefix="method")
     def init_method(self, method_id):
         self.method_id = method_id
@@ -64,34 +60,22 @@ class ExperimentWrapper:
 
         dataset = self.spatial_path.split("/")[-1].split(".")[0]
         dataset_var_column = dataset + "_" + self.var_HVF_column
-        output_path = output_path + self.modality + '/' + dataset_var_column
+        output_path = output_path + self.modality + "/" + dataset_var_column
 
         tangram(
-<<<<<<< HEAD:scripts/tangram/experiment_runner_heart.py
             adata_spatial=self.adata_spatial,
             adata_ref=self.adata_reference,
             labels_key=self.labels_key,
             run_rank_genes=False,
-            device="cuda",
             result_path=output_path,
         )
 
-        results = {"result_path": output_path + "/tangram_ct_pred.csv", "dataset": dataset}
-=======
-                adata_spatial=self.adata_spatial,
-                adata_ref=self.adata_reference,
-                labels_key=self.labels_key,
-                run_rank_genes=False,
-                result_path=output_path
-            )
-
         results = {
-            "result_path": output_path + "/tangram_ct_pred.csv", 
-            "dataset": dataset, 
+            "result_path": output_path + "/tangram_ct_pred.csv",
+            "dataset": dataset,
             "modality": self.modality,
-            "var_HVF_column": self.var_HVF_column
+            "var_HVF_column": self.var_HVF_column,
         }
->>>>>>> seml:scripts/tangram/experiment_runner.py
         return results
 
 
