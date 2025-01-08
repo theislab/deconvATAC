@@ -299,7 +299,7 @@ class Sampler:
         sample_exp = {"tmp": self.reference} if isinstance(self.reference, ad.AnnData) else self.reference.mod
         exp = {key: np.zeros((len(params), adata.shape[1])) for key, adata in sample_exp.items()}
         density = np.zeros((len(params), len(self.clusters)))
-
+        sampled_cells_df = []
         for i, (num_cell, used_clusters, region) in enumerate(params):
             cluster_mask = self.obs[self.cell_type_key].isin(used_clusters).values
 
@@ -315,8 +315,14 @@ class Sampler:
             for key, adata in sample_exp.items():
                 exp[key][i, :] = adata[sampled_cells, :].X.sum(axis=0)
             density[i, :] = self.obs.loc[sampled_cells, self.cell_type_key].value_counts().loc[self.clusters].values
-
-        return exp, density
+            sampled_cells_df.append(
+                {
+                    "region": [region] * num_cell,
+                    "cell_id": sampled_cells.tolist(),
+                    "cell_type": self.obs.loc[sampled_cells, self.cell_type_key].values.tolist(),
+                }
+            )
+        return exp, density, pd.DataFrame(sampled_cells_df)
 
     def get_coords(self):
         """
@@ -399,7 +405,7 @@ def generate_spatial_data(
         **kwargs,
     )
 
-    exp, density = sampler.sample_data()
+    (exp, density, sampled_cells_df) = sampler.sample_data()
     spatial_mod = {}
 
     X, Y = sampler.get_coords()
@@ -416,6 +422,6 @@ def generate_spatial_data(
         spatial_mod[key] = spatial_ann
 
     if isinstance(reference, ad.AnnData):
-        return spatial_mod["tmp"]
+        return spatial_mod["tmp"], sampled_cells_df
     elif isinstance(reference, mu.MuData):
-        return mu.MuData(spatial_mod)
+        return mu.MuData(spatial_mod), sampled_cells_df
