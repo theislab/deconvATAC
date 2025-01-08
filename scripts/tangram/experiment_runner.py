@@ -60,14 +60,13 @@ class ExperimentWrapper:
 
         dataset = self.spatial_path.split("/")[-1].split(".")[0]
         dataset_var_column = dataset + "_" + self.var_HVF_column
-        output_path = output_path + self.modality + '/' + dataset_var_column
+        output_path = output_path + self.modality + "/" + dataset_var_column
 
         tangram(
             adata_spatial=self.adata_spatial,
             adata_ref=self.adata_reference,
             labels_key=self.labels_key,
             run_rank_genes=False,
-            device="cuda",
             result_path=output_path,
         )
 
