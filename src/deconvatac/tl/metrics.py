@@ -1,16 +1,11 @@
-from anndata import AnnData
-import pandas as pd
+from typing import Union
+
 import numpy as np
-
-from typing import Optional, Union
-
+import pandas as pd
 from scipy.spatial.distance import jensenshannon
 
 
-def rmse(
-        true: Union[pd.DataFrame, np.ndarray],
-        predicted: Union[pd.DataFrame, np.ndarray]
-        ) -> float:
+def rmse(true: Union[pd.DataFrame, np.ndarray], predicted: Union[pd.DataFrame, np.ndarray]) -> float:
     """Compute RMSE on true and predicted cell type proportions.
 
     Parameters
@@ -27,10 +22,8 @@ def rmse(
     rmse = np.sqrt(np.mean((true - predicted) ** 2))
     return rmse
 
-def jsd(
-        true: Union[pd.DataFrame, np.ndarray], 
-        predicted: Union[pd.DataFrame, np.ndarray]
-        ) -> float:
+
+def jsd(true: Union[pd.DataFrame, np.ndarray], predicted: Union[pd.DataFrame, np.ndarray]) -> float:
     """Compute Jensen-Shannon divergence on true and predicted cell type proportions.
 
     Parameters
@@ -45,6 +38,4 @@ def jsd(
     Jensen-Shannon divergence.
     """
     jsd = jensenshannon(true, predicted, axis=1, base=2)
-    return jsd.mean()
-
-
+    return np.mean(jsd[np.isfinite(jsd)])

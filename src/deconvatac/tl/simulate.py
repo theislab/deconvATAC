@@ -299,7 +299,7 @@ class Sampler:
         sample_exp = {"tmp": self.reference} if isinstance(self.reference, ad.AnnData) else self.reference.mod
         exp = {key: np.zeros((len(params), adata.shape[1])) for key, adata in sample_exp.items()}
         density = np.zeros((len(params), len(self.clusters)))
-
+        sampled_cells_df = []
         for i, (num_cell, used_clusters, region) in enumerate(params):
             cluster_mask = self.obs[self.cell_type_key].isin(used_clusters).values
 
@@ -315,8 +315,14 @@ class Sampler:
             for key, adata in sample_exp.items():
                 exp[key][i, :] = adata[sampled_cells, :].X.sum(axis=0)
             density[i, :] = self.obs.loc[sampled_cells, self.cell_type_key].value_counts().loc[self.clusters].values
-
-        return exp, density
+            sampled_cells_df.append(
+                {
+                    "region": [region] * num_cell,
+                    "cell_id": sampled_cells.tolist(),
+                    "cell_type": self.obs.loc[sampled_cells, self.cell_type_key].values.tolist(),
+                }
+            )
+        return exp, density, pd.DataFrame(sampled_cells_df)
 
     def get_coords(self):
         """
@@ -371,9 +377,38 @@ def generate_spatial_data(
         The number of cell types to generate, by default 4.
     **kwargs
         Additional keyword arguments.
+    reference : Union[mu.MuData, ad.AnnData]
+        The reference dataset used for generating spatial data.
+    cell_type_key : str
+        The key in the reference dataset that specifies the cell type information.
+    num_spots : int, optional
+        The number of spots (locations) to generate, by default 1024.
+    n_regions : int, optional
+        The number of spatial regions to generate, by default 5.
+    balance : str, optional
+        The balancing method to use for generating spatial data, by default None.
+    cell_number_mean : Union[int, list], optional
+        The mean number of cells per spot, by default 6.
+    cell_number_nu : Union[float, list], optional
+        The dispersion parameter for the negative binomial distribution used to model cell numbers, by default 20.0.
+    cell_type_number : Union[int, list], optional
+        The number of cell types to generate, by default 4.
+    **kwargs
+        Additional keyword arguments.
 
     Returns
     -------
+    Union[ad.AnnData, mu.MuData]
+        The generated spatial data.
+
+    Notes
+    -----
+    This function generates spatial data based on a reference dataset. It uses a sampling approach to generate
+    synthetic spatial data with specified characteristics such as cell type composition, cell numbers, and spatial
+    organization.
+
+    The generated spatial data is returned as an `AnnData` object if the reference dataset is an `AnnData` object,
+    or as a `MuData` object if the reference dataset is a `MuData` object.
     Union[ad.AnnData, mu.MuData]
         The generated spatial data.
 
@@ -399,7 +434,7 @@ def generate_spatial_data(
         **kwargs,
     )
 
-    exp, density = sampler.sample_data()
+    (exp, density, sampled_cells_df) = sampler.sample_data()
     spatial_mod = {}
 
     X, Y = sampler.get_coords()
@@ -416,6 +451,6 @@ def generate_spatial_data(
         spatial_mod[key] = spatial_ann
 
     if isinstance(reference, ad.AnnData):
-        return spatial_mod["tmp"]
+        return spatial_mod["tmp"], sampled_cells_df
     elif isinstance(reference, mu.MuData):
-        return mu.MuData(spatial_mod)
+        return mu.MuData(spatial_mod), sampled_cells_df
