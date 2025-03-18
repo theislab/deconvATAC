@@ -46,7 +46,6 @@ def spatialdwls(
     from rpy2 import robjects
     import anndata2ri
     import scanpy as sc
-    from deconvatac.tl import lsi
     
     adata_spatial_copy = adata_spatial.copy()
     adata_ref_copy = adata_ref.copy()
