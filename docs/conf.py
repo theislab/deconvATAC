@@ -18,16 +18,24 @@ sys.path.insert(0, str(HERE / "extensions"))
 
 # NOTE: If you installed your project in editable mode, this might be stale.
 #       If this is the case, reinstall it to refresh the metadata
-info = metadata("deconvATAC")
-project_name = info["Name"]
-author = info["Author"]
-copyright = f"{datetime.now():%Y}, {author}."
-version = info["Version"]
-urls = dict(pu.split(", ") for pu in info.get_all("Project-URL"))
-repository_url = urls["Source"]
-
+#info = metadata("deconvATAC")
+#project_name = info["Name"]
+#author = info["Author"]
+#copyright = f"{datetime.now():%Y}, {author}."
+#version = info["Version"]
+#urls = dict(pu.split(", ") for pu in info.get_all("Project-URL"))
+#repository_url = urls["Source"]
 # The full version, including alpha/beta/rc tags
-release = info["Version"]
+#release = info["Version"]
+
+
+project_name = "deconvATAC"
+author = "Ouologuem, Martens, Schaar et al."
+copyright = f"{datetime.now():%Y}, {author}."
+#version = info["Version"]
+#urls = dict(pu.split(", ") for pu in info.get_all("Project-URL"))
+repository_url = "https://github.com/theislab/deconvATAC"
+
 
 bibtex_bibfiles = ["references.bib"]
 templates_path = ["_templates"]
