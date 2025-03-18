@@ -32,8 +32,6 @@ sys.path.insert(0, str(HERE / "extensions"))
 project_name = "deconvATAC"
 author = "Ouologuem, Martens, Schaar et al."
 copyright = f"{datetime.now():%Y}, {author}."
-#version = info["Version"]
-#urls = dict(pu.split(", ") for pu in info.get_all("Project-URL"))
 repository_url = "https://github.com/theislab/deconvATAC"
 
 
@@ -61,25 +59,8 @@ extensions = [
     'sphinx.ext.intersphinx',
         'myst_parser'
 ]
-'''
-extensions = [
-    "sphinx_copybutton",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.napoleon",
-    "sphinxcontrib.bibtex",
-    "sphinx_autodoc_typehints",
-    "sphinx.ext.mathjax",
-    'myst_parser',
-    "IPython.sphinxext.ipython_console_highlighting",
-    "sphinxext.opengraph",
-    *[p.stem for p in (HERE / "extensions").glob("*.py")],
-]
-'''
 
-#autosummary_generate = True
-#autodoc_member_order = "groupwise"
+
 default_role = "literal"
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
@@ -96,19 +77,11 @@ myst_enable_extensions = [
     "html_admonition",
 ]
 myst_url_schemes = ("http", "https", "mailto")
-#nb_output_stderr = "remove"
-#nb_execution_mode = "off"
-#nb_merge_streams = True
 typehints_defaults = "braces"
 
 
 source_suffix = ['.rst', '.md'] 
 
-#source_suffix = {
-#    ".rst": "restructuredtext",
-#    ".ipynb": "myst-parser",
-#    ".myst": "myst-parser",
-#}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
