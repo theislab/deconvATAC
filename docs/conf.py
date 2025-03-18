@@ -55,7 +55,6 @@ html_context = {
 # Add any Sphinx extension module names here, as strings.
 # They can be extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    "myst_nb",
     "sphinx_copybutton",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
@@ -64,6 +63,7 @@ extensions = [
     "sphinxcontrib.bibtex",
     "sphinx_autodoc_typehints",
     "sphinx.ext.mathjax",
+    'myst_parser',
     "IPython.sphinxext.ipython_console_highlighting",
     "sphinxext.opengraph",
     *[p.stem for p in (HERE / "extensions").glob("*.py")],
