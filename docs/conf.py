@@ -57,9 +57,12 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
-        'myst_parser'
+        'myst_parser',
+        'autoapi.extension'
 ]
 
+
+autoapi_dirs = ['../src/deconvatac']
 
 default_role = "literal"
 napoleon_google_docstring = False
