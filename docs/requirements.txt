@@ -1,3 +1,4 @@
 myst-parser
+sphinx-autoapi
 sphinx
 sphinx_book_theme
