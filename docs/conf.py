@@ -58,7 +58,6 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
         'myst_parser'
 ]
@@ -79,8 +78,8 @@ extensions = [
 ]
 '''
 
-autosummary_generate = True
-autodoc_member_order = "groupwise"
+#autosummary_generate = True
+#autodoc_member_order = "groupwise"
 default_role = "literal"
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
