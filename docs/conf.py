@@ -96,16 +96,19 @@ myst_enable_extensions = [
     "html_admonition",
 ]
 myst_url_schemes = ("http", "https", "mailto")
-nb_output_stderr = "remove"
-nb_execution_mode = "off"
-nb_merge_streams = True
+#nb_output_stderr = "remove"
+#nb_execution_mode = "off"
+#nb_merge_streams = True
 typehints_defaults = "braces"
 
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".ipynb": "myst-nb",
-    ".myst": "myst-nb",
-}
+
+source_suffix = ['.rst', '.md'] 
+
+#source_suffix = {
+#    ".rst": "restructuredtext",
+#    ".ipynb": "myst-parser",
+#    ".myst": "myst-parser",
+#}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
