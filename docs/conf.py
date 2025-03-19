@@ -58,7 +58,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
         'myst_parser',
-        'autoapi.extension'
+        'autoapi.extension',
+        'nbsphinx'
 ]
 
 
