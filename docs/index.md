@@ -7,10 +7,7 @@
 :maxdepth: 1
 
 
-changelog.md
-template_usage.md
-contributing.md
-references.md
+installation.md
 
 notebooks/example.ipynb
 ```
