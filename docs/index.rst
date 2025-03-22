@@ -5,7 +5,9 @@ deconvATAC
 
 
 .. toctree::
+   :includehidden:
    :maxdepth: 2
-    installation.md
-    notebooks/index.rst
+   
+   installation
+   notebooks/index
 
