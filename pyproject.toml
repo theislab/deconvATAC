@@ -20,11 +20,22 @@ urls.Source = "https://github.com/theislab/deconvATAC"
 urls.Home-page = "https://github.com/theislab/deconvATAC"
 dependencies = [
     "anndata",
+    "muon", 
+    "scanpy",
+    "scipy",
+    "matplotlib",
     # for debug logging (referenced from the issue template)
     "session-info"
 ]
 
 [project.optional-dependencies]
+
+cell2location = [
+    "cell2location==0.1.4"
+]
+
+
+
 dev = [
     "pre-commit",
     "twine>=4.0.2"

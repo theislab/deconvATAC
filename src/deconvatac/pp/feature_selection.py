@@ -6,14 +6,29 @@ def highly_variable_peaks(
     adata: AnnData, cluster_key: str, layer: str = None, scale: float = 1, n_top_features: int = 20000
 ):
     """
-    Selects highly variable features the "var" way
+    Selects highly variable features the "var" way. 
 
     Adapted from: https://github.com/GreenleafLab/ArchR/blob/c61b0645d1482f80dcc24e25fbd915128c1b2500/R/IterativeLSI.R#L1015
 
-        scatac: anndata object of the (reference) scATAC data
-        cluster: name of column in adata.obs containing the clusters
-        scale: scale factor, i.e. log2((sums/feature_sums) *scale + 1)
-        n_top_features: how many features to select
+    Parameters
+    -----------
+
+    adata: AnnData
+        AnnData object of the (reference) scATAC data.
+    cluster_key: str
+        Name of column in adata.obs containing the clusters.
+    layer: str 
+        Layer of the raw counts. If None, uses .X
+    scale: float
+        Scale factor, i.e. log2((sums/feature_sums) *scale + 1).
+    n_top_features: int
+        How many features to select.
+
+        
+    Returns
+    -------
+    
+    Saves a boolean indicator of the HVPs in place to adata.var['highly_variable'].
     """
     # step 1: get matrix of shape (clusters x features) (i.e. sum up features per cluster)
     clusters = adata.obs[cluster_key].unique()
@@ -52,14 +67,21 @@ def highly_accessible_peaks(adata: AnnData, layer: str = None, n_top_features: i
 
     Parameters
     ----------
-        adata (AnnData): Annotated data object containing the peaks.
-        layer (str, optional): Name of the layer to use for peak accessibility. Defaults to None.
-        n_top_features (int, optional): Number of top accessible peaks to select. Defaults to 20000.
-        copy (bool, optional): Whether to copy the AnnData object. Defaults to False.
 
+    adata: AnnData
+        Annotated data object containing the peaks.
+    layer: str 
+        Name of the layer to use for peak accessibility.
+    n_top_features: int
+        Number of top accessible peaks to select.
+    copy: bool
+        Whether to copy the AnnData object. 
+
+        
     Returns
     -------
-        AnnData: Annotated data object with the highly accessible peaks annotated.
+
+    AnnData object with the highly accessible peaks saved to adata.var['highly_accessible'].
     """
     if copy:
         adata = adata.copy()
