@@ -4,10 +4,8 @@ deconvATAC
 
 
 
-```{toctree}
-:hidden: true
-:maxdepth: 1
+.. toctree::
+   :maxdepth: 2
+    installation.md
+    notebooks/index.rst
 
-installation.md
-notebooks/index.rst
-```
