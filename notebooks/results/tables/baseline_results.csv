@@ -1,0 +1,10 @@
+,dataset,mdata_spatial_path,method,jsd,rmse,Type
+0,Brain_1,/vol/storage/submission_data/data/simulations/Brain_1.h5mu,baseline majority cell type,0.5002139349709456,0.16142508844602613,Simulation dissociated data
+1,Heart_3,/vol/storage/submission_data/data/simulations/Heart_3.h5mu,baseline majority cell type,0.6783886646516828,0.2194351216307922,Simulation dissociated data
+2,russell_250,/vol/storage/submission_data/data/simulations/russell_250.h5mu,baseline majority cell type,0.44223833680530505,0.17613544515520588,Simulation targeted data
+3,Brain_2,/vol/storage/submission_data/data/simulations/Brain_2.h5mu,baseline majority cell type,0.7478299857636527,0.22826721143647846,Simulation dissociated data
+4,Brain_4,/vol/storage/submission_data/data/simulations/Brain_4.h5mu,baseline majority cell type,0.587039063659223,0.1858159208350408,Simulation dissociated data
+5,Brain_3,/vol/storage/submission_data/data/simulations/Brain_3.h5mu,baseline majority cell type,0.6833214151369971,0.21238042581060565,Simulation dissociated data
+6,Heart_1,/vol/storage/submission_data/data/simulations/Heart_1.h5mu,baseline majority cell type,0.4949660695919702,0.16576847814187554,Simulation dissociated data
+7,Heart_4,/vol/storage/submission_data/data/simulations/Heart_4.h5mu,baseline majority cell type,0.5854002664713815,0.19304368122484525,Simulation dissociated data
+8,Heart_2,/vol/storage/submission_data/data/simulations/Heart_2.h5mu,baseline majority cell type,0.7465488166980003,0.23710056787470343,Simulation dissociated data
