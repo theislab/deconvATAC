@@ -8,9 +8,9 @@ We recommend running deconvATAC within virtual environments, such as Conda, to p
 ### Create conda environment
 
 ```bash
-    conda create -n deconvATAC python=3.9 r-base=4.2.0
-    conda activate deconvATAC
-   ```
+conda create -n deconvATAC python=3.9 r-base=4.2.0
+conda activate deconvATAC
+```
 
 ### Installing deconvATAC
 
