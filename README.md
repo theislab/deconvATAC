@@ -12,7 +12,7 @@ Please refer to the [documentation][link-docs].
 #### Create conda environment
 
 ```bash
-conda create -n deconvATAC python=3.9 r-base=4.2.0
+conda create -n deconvATAC python=3.9 r-base=4.3.0
 conda activate deconvATAC
 ```
 
@@ -43,8 +43,14 @@ pip install .[destvi]
 
 For installing RCTD, please use the following 
 ```bash
-install.packages("devtools")
-devtools::install_github("dmcable/spacexr", build_vignettes = FALSE)
+conda install bioconda::r-spacexr
+```
+In your R terminal, install
+```bash
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("S4Vectors")
+BiocManager::install("SingleCellExperiment")
 ```
 
 ##### SpatialDWLS
