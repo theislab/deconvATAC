@@ -12,6 +12,7 @@ license = {file = "LICENSE"}
 authors = [
     {name = "Anna Schaar"},
     {name = "Sarah Ouologuem"},
+    {name = "Laura Martens"},
 ]
 maintainers = [
     {name = "Sarah Ouologuem", email = "sarah.ouologuem@tum.de"},
