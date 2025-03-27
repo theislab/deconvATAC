@@ -16,16 +16,16 @@ def rctd(
     -----------
 
     adata_spatial : AnnData
-        AnnData of the spatial data.
+        AnnData of the spatial data, filtered by highly variable features. Feature space needs to be the same as the one of adata_ref. Raw counts are expected in .X.
     adata_ref : AnnData 
-        AnnData of the reference data.
+        AnnData of the reference data, filtered by highly variable features. Feature space needs to be the same as the one of adata_spatial. Raw counts are expected in .X.
     labels_key : str
         Cell type key in adata_ref.obs for label information
     doublet_mode: str ["doublet", "full"]
         On which mode to run RCTD:  'doublet' (at most 1-2 cell types per pixel),
                                     'full' (no restrictions on number of cell types)
     r_lib_path : str
-        Path to R library.   
+        Path to R library in which RCTD is installed.   
     results_path : str
         Path to save estimated cell type abundances to. 
     create_rctd_kwargs : dict 

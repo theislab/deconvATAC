@@ -1,18 +1,8 @@
-# deconvATAC
-
-The deconvATAC package provides code used in our benchmarking study for deconvoluting spatialATAC data via deconvolution tools designed for spatial transcriptomics. In our study, we benchmark five top-performing spatial transcriptomics deconvolution methods. deconvATAC additionally provides a framework for simulating spatial multi-modal data from dissociated single-cell data, as well as metrics for evaluating the performance of deconvolution. 
-
-
-Please refer to the [documentation][link-docs].
-
-Data used in this study is available on [Zenodo](https://zenodo.org/records/15089738)
-
-<p align="left">
-<img src="https://github.com/theislab/deconvATAC/blob/docs_sarah/docs/figure1.png/?raw=true" alt="Study overview" width="700"/>
-
-
 
 ## Installation
+
+
+We recommend running deconvATAC within virtual environments, such as Conda, to prevent conflicts.
 
 
 ### Create conda environment
@@ -37,6 +27,7 @@ pip install .
 
 ### Installing optional dependencies
 
+deconvATAC is only installed with the packages needed for the simulation, highly variable peak selection, and metrics. For running the deconvolution methods, we recommend to work with a different environment for each method to prevent dependency conflicts, with deconvATAC installed in each. 
 You can install the dependencies needed for the python-based deconvolution methods with: 
 
 ```bash
@@ -64,12 +55,3 @@ BiocManager::install("SingleCellExperiment")
 For SpatialDWLS, the Giotto package needs to be installed. Please follow the installation guidelines in the [Giotto documentation](https://drieslab.github.io/Giotto_website/articles/installation.html) for installation of the package. 
 
 
-
-## Citation
-
-> t.b.a
-
-
-[issue-tracker]: https://github.com/theislab/deconvATAC/issues
-[link-docs]: https://deconvATAC.readthedocs.io
-[link-api]: https://deconvatac.readthedocs.io/en/latest/autoapi/index.html

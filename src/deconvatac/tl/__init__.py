@@ -5,4 +5,3 @@ from .metrics import jsd, rmse
 from .rctd import rctd
 from .simulate import *
 from .spatialdwls import spatialdwls
-#from .lsi import lsi
