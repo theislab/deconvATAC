@@ -5,6 +5,13 @@ The deconvATAC package provides code used in our benchmarking study for deconvol
 
 Please refer to the [documentation][link-docs].
 
+Data used in this study is available on [Zenodo]()
+
+<p align="center">
+<img src="https://github.com/theislab/deconvATAC/blob/docs_sarah/docs/figure1.png/?raw=true" alt="Study overview" width="300"/>
+
+
+
 ## Installation
 
 
