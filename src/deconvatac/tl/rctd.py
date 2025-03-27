@@ -25,7 +25,7 @@ def rctd(
         On which mode to run RCTD:  'doublet' (at most 1-2 cell types per pixel),
                                     'full' (no restrictions on number of cell types)
     r_lib_path : str
-        Path to R library.   
+        Path to R library in which RCTD is installed.   
     results_path : str
         Path to save estimated cell type abundances to. 
     create_rctd_kwargs : dict 
