@@ -24,9 +24,9 @@ Install the package:
 cd deconvATAC
 pip install .
 ```
-> [!NOTE]  
-> If you encounter issues with `glibc` during the installation you can try to install it using conda:
-> ```conda create -n deconvATAC python=3.9 r-base=4.3.0 gcc_linux-64 gxx_linux-64```
+.. note:: 
+    If you encounter issues with `glibc` during the installation you can try to install it using conda:
+    `conda create -n deconvATAC python=3.9 r-base=4.3.0 gcc_linux-64 gxx_linux-64`
 ### Installing optional dependencies
 
 deconvATAC is only installed with the packages needed for the simulation, highly variable peak selection, and metrics. For running the deconvolution methods, we recommend to work with a different environment for each method to prevent dependency conflicts, with deconvATAC installed in each. 
