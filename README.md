@@ -69,7 +69,12 @@ For SpatialDWLS, the Giotto package needs to be installed. Please follow the ins
 
 ## Citation
 
-> t.b.a
+
+> **Spatial transcriptomics deconvolution methods generalize well to spatial chromatin accessibility data**
+>
+> Sarah Ouologuem, Laura D Martens, Anna C Schaar, Maiia Shulman, Julien Gagneur, Fabian J Theis
+>
+> _Bioinformatics_, Volume 41, Issue Supplement_1, July 2025, Pages i314–i322 doi: [10.1093/bioinformatics/btaf268](https://doi.org/10.1093/bioinformatics/btaf268).
 
 
 [issue-tracker]: https://github.com/theislab/deconvATAC/issues
